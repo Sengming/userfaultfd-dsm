@@ -179,18 +179,21 @@ int serve_new_conn(int ask)
 	printf("How many pages to mmap?");
 	fgets(command, INPUT_CMD_LEN, stdin);
 
-
 	return ret;
 }
 
-static void* setup_server(void* arg)
+static void* bus_thread_handler(void* arg)
 {
-	char* argv = (char*) arg;
+	return NULL;
+}
+
+static int setup_server(int port)
+{
 	/* Socket related variables */
 	int sk, port, ret;
 	int ask;
 	struct sockaddr_in addr;
-	port = atoi(argv[1]);
+	port = port;
 
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
@@ -211,43 +214,95 @@ static void* setup_server(void* arg)
 
 	/* We've paired, no longer any need for sk */
 	close(sk);
-	ret = serve_new_conn(ask);
 
-	return NULL;
+	return ask;
 }
 
-static void* try_connect_client(void* arg)
+static int try_connect_client(int port, char* ip_string)
 {
+	int sk = 0;
+	int err = 0;
+	int ret = 0;
+	struct sockaddr_in addr;
 
+	sk = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (sk < 0) {
+		goto out_socket_err;
+	}
 
-	return NULL;
+	printf("Connecting to %s:%d\n", ip_string, port);
+	memset(&addr, 0, sizeof(addr));
+	addr.sin_family = AF_INET;
+	err = inet_aton(ip_string, &addr.sin_addr);
+	if (err < 0) {
+		goto out_close_socket;
+	}
+
+	addr.sin_port = htons(port);
+
+	err = connect(sk, (struct sockaddr *)&addr, sizeof(addr));
+	if (err < 0) {
+		goto out_close_socket;
+	}
+	// TODO: mmap and send to client here.
+	/* Return the socket if we successfully connect to it*/
+	return sk;
+
+out_close_socket:
+	close(sk);
+out_socket_err:
+	return -1;
 }
+
 int
 main(int argc, char *argv[])
 {
-	long uffd;          /* userfaultfd file descriptor */
 	char *addr;         /* Start of region handled by userfaultfd */
 	unsigned long len;  /* Length of region handled by userfaultfd */
 	struct uffdio_api uffdio_api;
 	struct uffdio_register uffdio_register;
+	int socket_fd;
 
-	/* Create client first and try to connect. If other server doesn't
-	 * exist, then we are the first node. Else, we are the second node. */
-
-
-	/* Server thread related */
-	int server_thread_return;
-	pthread_t server_thread;
+	pthread_t bus_thread;
+	int pthread_ret;
 
 	if (argc != 4) {
 		fprintf(stderr, "Usage: %s my_port remote_ip remote_port\n",
 			argv[0]);
 		exit(EXIT_FAILURE);
 	}
+	/* Create client first and try to connect. If other server doesn't
+	 * exist, then we are the first node. Else, we are the second node. */
+	socket_fd = try_connect_client(atoi(argv[3]), argv[2]);
 
-	server_thread_return = pthread_create(&server_thread, NULL,
-					      setup_server,
-					      (void *) argv);
+	if (socket_fd > 0){
+		/* We have successfully connected and have a socket fd*/
+
+		pthread_ret = pthread_create(&bus_thread, NULL,
+					     bus_thread_handler,
+					     (void *) socket_fd);
+		if (pthread_ret != 0) {
+			errno = pthread_ret;
+			errExit("pthread_create");
+		}
+	} else {
+	/* There is no server to connect to so we set up ourselves as the server*/
+		socket_fd = setup_server(atoi(argv[1]));
+		addr = mmap(NULL, len, PROT_READ | PROT_WRITE,
+			    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		if (addr == MAP_FAILED)
+			errExit("mmap");
+
+		printf("Address returned by mmap() = %p\n", addr);
+		pthread_ret = pthread_create(&bus_thread, NULL,
+					     bus_thread_handler,
+					     (void *) socket_fd);
+		if (pthread_ret != 0) {
+			errno = pthread_ret;
+			errExit("pthread_create");
+		}
+	}
+
 	if (server_thread_return != 0) {
 		errno = server_thread_return;
 		errExit("pthread_create");
