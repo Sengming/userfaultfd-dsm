@@ -9,22 +9,26 @@ enum msi_message_type
 	TOTAL_MESSAGES
 };
 
+struct memory_pair
+{
+	uint64_t address;
+	uint64_t size;
+};
+
+struct command_ack
+{
+	int err;
+};
+
 union message_payload
 {
-	struct memory_pair
-	{
-		int address;
-		int size;
-	};
-	struct command_ack
-	{
-		int err;
-	};
+	struct memory_pair memory_pair;
+	struct command_ack command_ack;
 };
 
 struct msi_message
 {
-	enum msi_message_type;
+	enum msi_message_type message_type;
 	union message_payload payload;
 };
 

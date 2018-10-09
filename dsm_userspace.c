@@ -24,177 +24,56 @@
 #include <arpa/inet.h>
 
 #include "messages.h"
+#include "types.h"
 
 #define INPUT_CMD_LEN (20)
+
 #define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE);	\
 	} while (0)
 
-static int page_size;
-
-//static void *
-//fault_handler_thread(void *arg)
-//{
-//	static struct uffd_msg msg;   /* Data read from userfaultfd */
-//	static int fault_cnt = 0;     /* Number of faults so far handled */
-//	long uffd;                    /* userfaultfd file descriptor */
-//	static char *page = NULL;
-//	struct uffdio_copy uffdio_copy;
-//	ssize_t nread;
-//
-//	uffd = (long) arg;
-//
-//	/* [H1: point 1]
-//	 * It the page pointer is NULL and hasn't been mapped before (see that
-//	 * they're static variables), let the kernel choose where to map the
-//	 * memory to, but make sure its size is page_size. Allow reading and
-//	 * writing to the page, the mapping is not backed by any file and is
-//	 * private to the process - not visible to other processes. FD is set to
-//	 * -1 since we're not backed by physical file anyway (-1 required for
-//	 * portability). Offset is 0. Exit with an error if we fail.
-//	 */
-//	if (page == NULL) {
-//		page = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
-//			    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-//		if (page == MAP_FAILED)
-//			errExit("mmap");
-//	}
-//
-//	/* [H2: point 1]
-//	 * Have poll continuously monitor the userfaultfd for events. This is
-//	 * the main thread loop.
-//	 */
-//	for (;;) {
-//
-//		/* See what poll() tells us about the userfaultfd */
-//
-//		struct pollfd pollfd;
-//		int nready;
-//
-//		/* [H3: point 1]
-//		 * Add uffd as the fd to poll. Wait for POLLIN event which means
-//		 * the fd has data to read - corresponding with uffd_msg
-//		 * structure becoming available due to access of registered
-//		 * memory. Exit with error if poll returns error code. Else,
-//		 * continue and print out if the POLLIN/POLLERR bits are set.
-//		 */
-//		pollfd.fd = uffd;
-//		pollfd.events = POLLIN;
-//		nready = poll(&pollfd, 1, -1);
-//		if (nready == -1)
-//			errExit("poll");
-//
-//		printf("\nfault_handler_thread():\n");
-//		printf("    poll() returns: nready = %d; "
-//                       "POLLIN = %d; POLLERR = %d\n", nready,
-//                       (pollfd.revents & POLLIN) != 0,
-//                       (pollfd.revents & POLLERR) != 0);
-//
-//		/* [H4: point 1]
-//		 * Read data from the userfaultfd. This data with be of the type
-//		 * struct uffd_msg and will contain details such as the event,
-//		 * the fault flags, address of fault, userfault file descriptor
-//		 * of child process, old and new addresses of remapped area,
-//		 * original map length, start and end addresses of removed
-//		 * areas. Exit with fault if read returns -1. These are in a
-//		 * union so depending on the fault event, we look at the data
-//		 * with different representations.
-//		 */
-//		nread = read(uffd, &msg, sizeof(msg));
-//		if (nread == 0) {
-//			printf("EOF on userfaultfd!\n");
-//			exit(EXIT_FAILURE);
-//		}
-//
-//		if (nread == -1)
-//			errExit("read");
-//
-//		/* [H5: point 1]
-//		 * If the event is an event other than PAGEFAULT event, exit
-//		 * with an error as we do not handle other faults. There were
-//		 * multiple other faults added in 4.11.
-//		 */
-//		if (msg.event != UFFD_EVENT_PAGEFAULT) {
-//			fprintf(stderr, "Unexpected event on userfaultfd\n");
-//			exit(EXIT_FAILURE);
-//		}
-//
-//		/* [H6: point 1]
-//		 * In the case it IS a PAGEFAULT event, print out the flags and
-//		 * the address.
-//		 */
-//		printf("    UFFD_EVENT_PAGEFAULT event: ");
-//		printf("flags = %llx; ", msg.arg.pagefault.flags);
-//		printf("address = %llx\n", msg.arg.pagefault.address);
-//
-//		/* [H7: point 1]
-//		 * Fill the previously mapped page with 'A' + number of faults
-//		 * mod 20 for up to page_size. Similar to what is done on the
-//		 * man page example. This math here is just to increase the
-//		 * character A->B->C up to a limit of A+20, then it rolls back
-//		 * to A.
-//		 */
-//		memset(page, 'A' + fault_cnt % 20, page_size);
-//		fault_cnt++;
-//
-//		/* [H8: point 1]
-//		 * Copy the page we just set into the destination which is the
-//		 * address of the pagefault. This is accomplished first by
-//		 * filling in the uffdio_copy struct with the parameters such as
-//		 * the source, destination (which is the address at which we
-//		 * pagefaulted at in the other thread), length(size of a page in
-//		 * bytes). Mode is set to 0. Copy is reserved for ioctl to use.
-//		 * In copy destination, assuming page_size is 4096, 4096-1 will
-//		 * make a bitmask of 15 bits. Inverting that makes 15 0's with
-//		 * everything from the 16th bit and up as 1. Doing a bitwise and
-//		 * with this will shave off (floor) the address to the lowest
-//		 * page.
-//		 */
-//		uffdio_copy.src = (unsigned long) page;
-//		uffdio_copy.dst = (unsigned long) msg.arg.pagefault.address &
-//			~(page_size - 1);
-//		uffdio_copy.len = page_size;
-//		uffdio_copy.mode = 0;
-//		uffdio_copy.copy = 0;
-//
-//		/* [H9: point 1]
-//		 * Run the ioctl call on the userfaultfd and pass it the
-//		 * arguments required for the copy command.
-//		 */
-//		if (ioctl(uffd, UFFDIO_COPY, &uffdio_copy) == -1)
-//			errExit("ioctl-UFFDIO_COPY");
-//
-//		/* [H10: point 1]
-//		 * Print out the return value of the uffdio_copy command.
-//		 */
-//		printf("        (uffdio_copy.copy returned %lld)\n",
-//                       uffdio_copy.copy);
-//	}
-//}
-
-int serve_new_conn(int ask)
-{
-	int ret;
-	char command[INPUT_CMD_LEN];
-	/* Prompt User for mmap memory */
-	printf("How many pages to mmap?");
-	fgets(command, INPUT_CMD_LEN, stdin);
-
-	return ret;
-}
+//static int page_size;
 
 static void* bus_thread_handler(void* arg)
 {
+	int rd;
+	struct msi_message msg;
+	struct bus_thread_args* bus_args = arg;
+
+	if (!bus_args)
+		errExit("Null Pointer");
+
+	while (1) {
+		rd = read(bus_args->fd, &msg, sizeof(msg));
+		if (rd < 0)
+			errExit("Read Error");
+		if (msg.message_type == CONNECTION_ESTABLISHED) {
+			printf("Pairing Request Received: Addr: %lu Length: %lu\n"
+			       ,msg.payload.memory_pair.address,
+			       msg.payload.memory_pair.size);
+		}
+	}
 	return NULL;
 }
 
-static int setup_server(int port)
+static int setup_server(int port, struct bus_thread_args* arg_output)
 {
 	/* Socket related variables */
-	int sk, port, ret;
+	int sk, ret;
 	int ask;
+	int len;
 	struct sockaddr_in addr;
-	port = port;
+	/* mmap related */
+	char command[INPUT_CMD_LEN];
+	int page_size;
+	void* mmap_ptr;
+	int write_ret;
 
+	struct msi_message msg;
+
+	sk = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (sk < 0) {
+		errExit("Socket Creation");
+	}
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -205,6 +84,11 @@ static int setup_server(int port)
 		errExit("Server bind failed");
 	}
 
+	ret = listen(sk, 16);
+	if (ret < 0) {
+		errExit("Server listen failed");
+	}
+
 	printf("Waiting for connections\n");
 
 	ask = accept(sk, NULL, NULL);
@@ -212,17 +96,47 @@ static int setup_server(int port)
 		errExit("Server accept failed");
 	}
 
+	/* Prompt User for mmap memory */
+	printf("How many pages to mmap?");
+	if (!fgets(command, INPUT_CMD_LEN, stdin)){
+		errExit("fgets error");
+	}
+
+	page_size = sysconf(_SC_PAGE_SIZE);
+	len = strtoul(command, NULL, 0) * page_size;
+	if (len < 0)
+		errExit("strtoul_server_setup");
+
+	mmap_ptr = mmap(NULL, len, PROT_READ | PROT_WRITE,
+		    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	if (mmap_ptr == MAP_FAILED)
+		errExit("mmap");
+
+	/* Populate Message fields before sending */
+	msg.message_type = CONNECTION_ESTABLISHED;
+	msg.payload.memory_pair.address = (uint64_t)mmap_ptr;
+	msg.payload.memory_pair.size = len;
+	write_ret = write(ask, &msg , sizeof(msg));
+	if (write_ret <= 0) {
+		errExit("Server initial write error");
+	}
+
+	/* Populate argument fields for worker thread */
+	arg_output->fd = ask;
+	arg_output->memory_address = (uint64_t)mmap_ptr;
+	arg_output->size = len;
+
 	/* We've paired, no longer any need for sk */
 	close(sk);
 
 	return ask;
 }
 
-static int try_connect_client(int port, char* ip_string)
+static int try_connect_client(int port, char* ip_string, struct
+			      bus_thread_args* arg_output)
 {
 	int sk = 0;
 	int err = 0;
-	int ret = 0;
 	struct sockaddr_in addr;
 
 	sk = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -244,7 +158,8 @@ static int try_connect_client(int port, char* ip_string)
 	if (err < 0) {
 		goto out_close_socket;
 	}
-	// TODO: mmap and send to client here.
+
+	arg_output->fd = sk;
 	/* Return the socket if we successfully connect to it*/
 	return sk;
 
@@ -257,12 +172,11 @@ out_socket_err:
 int
 main(int argc, char *argv[])
 {
-	char *addr;         /* Start of region handled by userfaultfd */
-	unsigned long len;  /* Length of region handled by userfaultfd */
-	struct uffdio_api uffdio_api;
-	struct uffdio_register uffdio_register;
+	//struct uffdio_api uffdio_api;
+	//struct uffdio_register uffdio_register;
 	int socket_fd;
-
+	char fgets_buffer[100];
+	struct bus_thread_args bus_args;
 	pthread_t bus_thread;
 	int pthread_ret;
 
@@ -273,43 +187,38 @@ main(int argc, char *argv[])
 	}
 	/* Create client first and try to connect. If other server doesn't
 	 * exist, then we are the first node. Else, we are the second node. */
-	socket_fd = try_connect_client(atoi(argv[3]), argv[2]);
+	socket_fd = try_connect_client(atoi(argv[3]), argv[2], &bus_args);
 
 	if (socket_fd > 0){
 		/* We have successfully connected and have a socket fd*/
 
 		pthread_ret = pthread_create(&bus_thread, NULL,
 					     bus_thread_handler,
-					     (void *) socket_fd);
+					     (void *) &bus_args);
 		if (pthread_ret != 0) {
 			errno = pthread_ret;
 			errExit("pthread_create");
 		}
 	} else {
 	/* There is no server to connect to so we set up ourselves as the server*/
-		socket_fd = setup_server(atoi(argv[1]));
-		addr = mmap(NULL, len, PROT_READ | PROT_WRITE,
-			    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-		if (addr == MAP_FAILED)
-			errExit("mmap");
-
-		printf("Address returned by mmap() = %p\n", addr);
+		setup_server(atoi(argv[1]), &bus_args);
 		pthread_ret = pthread_create(&bus_thread, NULL,
 					     bus_thread_handler,
-					     (void *) socket_fd);
+					     (void *) &bus_args);
 		if (pthread_ret != 0) {
 			errno = pthread_ret;
 			errExit("pthread_create");
 		}
 	}
 
-	if (server_thread_return != 0) {
-		errno = server_thread_return;
-		errExit("pthread_create");
-	}
-	page_size = sysconf(_SC_PAGE_SIZE);
-	len = strtoul(argv[1], NULL, 0) * page_size;
 
+	/* Prompt User for Command */
+	for(;;) {
+		printf("What would you like to do? Read/Write?");
+		if (!fgets(fgets_buffer, INPUT_CMD_LEN, stdin)){
+			errExit("fgets error");
+		}
+	}
 //	uffd = syscall(__NR_userfaultfd, O_CLOEXEC | O_NONBLOCK);
 //	if (uffd == -1)
 //		errExit("userfaultfd");
@@ -319,35 +228,17 @@ main(int argc, char *argv[])
 //	if (ioctl(uffd, UFFDIO_API, &uffdio_api) == -1)
 //		errExit("ioctl-UFFDIO_API");
 
-	addr = mmap(NULL, len, PROT_READ | PROT_WRITE,
-		    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-	if (addr == MAP_FAILED)
-		errExit("mmap");
-
-	printf("Address returned by mmap() = %p\n", addr);
-
-//	/* [M6: point 1]
-//	 * Register a memory range handled by the userfault fd and send it to
-//	 * the userfaultfd object through ioctl. Exit with error if we fail the
-//	 * ioctl. Take note of UFFDIO_REGISTER_MODE_MISSING. We only fire if
-//	 * the pages are missing.
-//	 */
 //	uffdio_register.range.start = (unsigned long) addr;
 //	uffdio_register.range.len = len;
 //	uffdio_register.mode = UFFDIO_REGISTER_MODE_MISSING;
 //	if (ioctl(uffd, UFFDIO_REGISTER, &uffdio_register) == -1)
 //		errExit("ioctl-UFFDIO_REGISTER");
 //
-//	/* [M7: point 1]
-//	 * Create new userspace thread to handle the fault handler. Link it to
-//	 * the fault_handler_thread function and pass in pointer to the
-//	 * userfaultfd object. Exit if error.
-//	 */
 //	s = pthread_create(&thr, NULL, fault_handler_thread, (void *) uffd);
 //	if (s != 0) {
 //		errno = s;
 //		errExit("pthread_create");
 //	}
-//
+	printf("EXITING");
 	exit(EXIT_SUCCESS);
 }
