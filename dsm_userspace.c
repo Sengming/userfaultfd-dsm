@@ -32,6 +32,15 @@
 	} while (0)
 
 //static int page_size;
+void bus_thread_cleanup_handler(void* arg)
+{
+	/* Close out the sockets so we don't have loose ends */
+	int sk = *(int*)arg;
+	/* Ensure it's not stdin/out/err */
+	printf("Cleanup handler called: %d\n", sk);
+	if (sk >= 2)
+		close(sk);
+}
 
 static void* bus_thread_handler(void* arg)
 {
@@ -42,16 +51,28 @@ static void* bus_thread_handler(void* arg)
 	if (!bus_args)
 		errExit("Null Pointer");
 
-	while (1) {
+	/* In case of thread cancellation, execute this handler */
+	pthread_cleanup_push(bus_thread_cleanup_handler, &bus_args->fd);
+
+	/* Main Event Loop for the bus*/
+	for(;;) {
 		rd = read(bus_args->fd, &msg, sizeof(msg));
 		if (rd < 0)
 			errExit("Read Error");
-		if (msg.message_type == CONNECTION_ESTABLISHED) {
-			printf("Pairing Request Received: Addr: %lu Length: %lu\n"
-			       ,msg.payload.memory_pair.address,
-			       msg.payload.memory_pair.size);
+		switch(msg.message_type){
+			case DISCONNECT:
+				close(bus_args->fd);
+				return NULL;
+			break;
+			default:
+				printf("Unhandled bus request\n");
+			break;
 		}
 	}
+
+	/* Cleanup pop 0 argument means we don't execute the handler in normal
+	 * exit, which is true since we will never exit here anyway*/
+	pthread_cleanup_pop(0);
 	return NULL;
 }
 
@@ -95,9 +116,10 @@ static int setup_server(int port, struct bus_thread_args* arg_output)
 	if (ask < 0) {
 		errExit("Server accept failed");
 	}
+	printf("Connection established with client\n");
 
 	/* Prompt User for mmap memory */
-	printf("How many pages to mmap?");
+	printf("How many pages to mmap?: ");
 	if (!fgets(command, INPUT_CMD_LEN, stdin)){
 		errExit("fgets error");
 	}
@@ -111,6 +133,9 @@ static int setup_server(int port, struct bus_thread_args* arg_output)
 		    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (mmap_ptr == MAP_FAILED)
 		errExit("mmap");
+
+	printf("Local mmap: Addr: %p, Length: %d\n"
+	       ,mmap_ptr, len);
 
 	/* Populate Message fields before sending */
 	msg.message_type = CONNECTION_ESTABLISHED;
@@ -138,6 +163,8 @@ static int try_connect_client(int port, char* ip_string, struct
 	int sk = 0;
 	int err = 0;
 	struct sockaddr_in addr;
+	int rd;
+	struct msi_message msg;
 
 	sk = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (sk < 0) {
@@ -159,6 +186,16 @@ static int try_connect_client(int port, char* ip_string, struct
 		goto out_close_socket;
 	}
 
+	/* Initial pairing read to establish memory region */
+	printf("Awaiting pairing request\n");
+	rd = read(sk, &msg, sizeof(msg));
+	if (rd < 0)
+		errExit("Read Error");
+	if (msg.message_type == CONNECTION_ESTABLISHED) {
+		printf("Pairing Request Received: Addr: 0x%lx, Length: %lu\n"
+		       ,msg.payload.memory_pair.address,
+		       msg.payload.memory_pair.size);
+	}
 	arg_output->fd = sk;
 	/* Return the socket if we successfully connect to it*/
 	return sk;
@@ -179,6 +216,9 @@ main(int argc, char *argv[])
 	struct bus_thread_args bus_args;
 	pthread_t bus_thread;
 	int pthread_ret;
+	int exit_write_ret;
+	/* Message */
+	struct msi_message msg;
 
 	if (argc != 4) {
 		fprintf(stderr, "Usage: %s my_port remote_ip remote_port\n",
@@ -201,7 +241,7 @@ main(int argc, char *argv[])
 		}
 	} else {
 	/* There is no server to connect to so we set up ourselves as the server*/
-		setup_server(atoi(argv[1]), &bus_args);
+		socket_fd = setup_server(atoi(argv[1]), &bus_args);
 		pthread_ret = pthread_create(&bus_thread, NULL,
 					     bus_thread_handler,
 					     (void *) &bus_args);
@@ -214,31 +254,22 @@ main(int argc, char *argv[])
 
 	/* Prompt User for Command */
 	for(;;) {
-		printf("What would you like to do? Read/Write?");
-		if (!fgets(fgets_buffer, INPUT_CMD_LEN, stdin)){
+		printf("What would you like to do? (R)ead/(w)rite/E(x)it?: ");
+		if (!fgets(fgets_buffer, INPUT_CMD_LEN, stdin))
 			errExit("fgets error");
+
+		if (!strncmp(fgets_buffer, "x", 1)){
+			pthread_cancel(bus_thread);
+			msg.message_type = DISCONNECT;
+			exit_write_ret = write(socket_fd, &msg, sizeof(msg));
+			if (exit_write_ret <= 0) {
+				errExit("Exit Write Error");
+			}
+			goto exit_success;
 		}
 	}
-//	uffd = syscall(__NR_userfaultfd, O_CLOEXEC | O_NONBLOCK);
-//	if (uffd == -1)
-//		errExit("userfaultfd");
-//
-//	uffdio_api.api = UFFD_API;
-//	uffdio_api.features = 0;
-//	if (ioctl(uffd, UFFDIO_API, &uffdio_api) == -1)
-//		errExit("ioctl-UFFDIO_API");
 
-//	uffdio_register.range.start = (unsigned long) addr;
-//	uffdio_register.range.len = len;
-//	uffdio_register.mode = UFFDIO_REGISTER_MODE_MISSING;
-//	if (ioctl(uffd, UFFDIO_REGISTER, &uffdio_register) == -1)
-//		errExit("ioctl-UFFDIO_REGISTER");
-//
-//	s = pthread_create(&thr, NULL, fault_handler_thread, (void *) uffd);
-//	if (s != 0) {
-//		errno = s;
-//		errExit("pthread_create");
-//	}
+exit_success:
 	printf("EXITING");
 	exit(EXIT_SUCCESS);
 }
