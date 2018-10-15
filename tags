@@ -1,0 +1,43 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+CC	Makefile	/^CC = gcc$/;"	m
+CONNECTION_ESTABLISHED	messages.h	/^	CONNECTION_ESTABLISHED = 0,$/;"	e	enum:msi_message_type
+CUR_DIR	Makefile	/^CUR_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))$/;"	m
+DEPCFLAGS	Makefile	/^DEPCFLAGS = -MD -MF $(DEPS_DIR)\/$*.d -MP$/;"	m
+DEPS_DIR	Makefile	/^DEPS_DIR  := $(CUR_DIR)\/.deps$(LIB_SUFFIX)$/;"	m
+DISCONNECT	messages.h	/^	DISCONNECT,$/;"	e	enum:msi_message_type
+EXE_FILES	Makefile	/^EXE_FILES = $(SRC_FILES:.c=)$/;"	m
+INPUT_CMD_LEN	dsm_userspace.c	25;"	d	file:
+INVALID_STATE_READ	messages.h	/^	INVALID_STATE_READ,$/;"	e	enum:msi_message_type
+PAGE_REPLY	messages.h	/^	PAGE_REPLY,$/;"	e	enum:msi_message_type
+SRC_FILES	Makefile	/^SRC_FILES = $(wildcard *.c)$/;"	m
+TOTAL_MESSAGES	messages.h	/^	TOTAL_MESSAGES$/;"	e	enum:msi_message_type
+_GNU_SOURCE	dsm_userspace.c	1;"	d	file:
+__MESSAGES_H__	messages.h	2;"	d
+__TYPES_H__	types.h	2;"	d
+address	messages.h	/^	uint64_t address;$/;"	m	struct:memory_pair
+bus_thread_args	types.h	/^struct bus_thread_args$/;"	s
+bus_thread_cleanup_handler	dsm_userspace.c	/^void bus_thread_cleanup_handler(void* arg)$/;"	f
+bus_thread_handler	dsm_userspace.c	/^static void* bus_thread_handler(void* arg)$/;"	f	file:
+command_ack	messages.h	/^	struct command_ack command_ack;$/;"	m	union:message_payload	typeref:struct:message_payload::command_ack
+command_ack	messages.h	/^struct command_ack$/;"	s
+err	messages.h	/^	int err;$/;"	m	struct:command_ack
+errExit	dsm_userspace.c	27;"	d	file:
+fd	types.h	/^	int fd;$/;"	m	struct:bus_thread_args
+main	dsm_userspace.c	/^main(int argc, char *argv[])$/;"	f
+memory_address	types.h	/^	uint64_t memory_address;$/;"	m	struct:bus_thread_args
+memory_pair	messages.h	/^	struct memory_pair memory_pair;$/;"	m	union:message_payload	typeref:struct:message_payload::memory_pair
+memory_pair	messages.h	/^struct memory_pair$/;"	s
+message_payload	messages.h	/^union message_payload$/;"	u
+message_type	messages.h	/^	enum msi_message_type message_type;$/;"	m	struct:msi_message	typeref:enum:msi_message::msi_message_type
+msi_message	messages.h	/^struct msi_message$/;"	s
+msi_message_type	messages.h	/^enum msi_message_type$/;"	g
+payload	messages.h	/^	union message_payload payload;$/;"	m	struct:msi_message	typeref:union:msi_message::message_payload
+setup_server	dsm_userspace.c	/^static int setup_server(int port, struct bus_thread_args* arg_output)$/;"	f	file:
+size	messages.h	/^	uint64_t size;$/;"	m	struct:memory_pair
+size	types.h	/^	uint64_t size;$/;"	m	struct:bus_thread_args
+try_connect_client	dsm_userspace.c	/^static int try_connect_client(int port, char* ip_string, struct$/;"	f	file:
