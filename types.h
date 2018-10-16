@@ -3,8 +3,11 @@
 
 #include <stdint.h>
 #include <pthread.h>
+#include <stdbool.h>
 
 #define INPUT_CMD_LEN (20)
+#define MAX_PAGES     (100)
+#define WRITE_BUF_LEN (100)
 
 #define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE);	\
 	} while (0)
@@ -18,10 +21,12 @@ enum msi_tag
 	NUM_TAGS
 };
 
-struct page_state
+struct msi_page
 {
 	enum msi_tag tag;
 	pthread_mutex_t mutex;
+	void* start_address;
+	bool in_use;
 };
 
 struct bus_thread_args

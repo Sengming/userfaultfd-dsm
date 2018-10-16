@@ -16,6 +16,7 @@
 #include <sys/socket.h>
 #include <linux/types.h>
 #include <arpa/inet.h>
+#include <stdbool.h>
 
 #include "messages.h"
 #include "types.h"
@@ -24,8 +25,54 @@
 
 #define TOTAL_NUM_ARGS		(4)
 
+/* Global page array */
+struct msi_page pages[MAX_PAGES];
+unsigned long g_pages_mapped;
 
-//static int page_size;
+static void initialize_msi_pages()
+{
+	int i;
+	for(i = 0; i < MAX_PAGES; ++i){
+		pages[i].tag = INVALID;
+		pthread_mutex_init(&pages[i].mutex, NULL);
+		pages[i].in_use = false;
+		pages[i].start_address = NULL;
+	}
+}
+
+static void address_msi_pages(uint64_t mmap_addr)
+{
+	int i;
+	uint64_t page_addr = mmap_addr;
+	int page_size = sysconf(_SC_PAGE_SIZE);
+	for(i = 0; i < MAX_PAGES; ++i, page_addr+=page_size){
+		pages[i].start_address = (void*)page_addr;
+	}
+}
+
+static void handle_write_command()
+{
+	char cmd_buffer[INPUT_CMD_LEN];
+	char write_buffer[WRITE_BUF_LEN];
+	unsigned long page_num;
+	printf("\nWhat page would you like to write to? (1-N or i): ");
+	if (!fgets(cmd_buffer, INPUT_CMD_LEN, stdin))
+		errExit("fgets error");
+
+	page_num = strtoul(cmd_buffer, NULL, 0);
+	if (page_num < g_pages_mapped) {
+		printf("\nWhat would you like to write?:\n");
+		if (!fgets(write_buffer, WRITE_BUF_LEN, stdin))
+			errExit("fgets error");
+		printf("\nCopying %s to address %p\n", write_buffer,
+		       pages[page_num].start_address);
+		memcpy(pages[page_num].start_address, write_buffer,
+		       strlen(write_buffer));
+	}
+	else if (!strncmp(cmd_buffer, "i", 1)){
+
+	}
+}
 
 int
 main(int argc, char *argv[])
@@ -52,6 +99,9 @@ main(int argc, char *argv[])
 			argv[0]);
 		exit(EXIT_FAILURE);
 	}
+
+	initialize_msi_pages();
+
 	/* Create client first and try to connect. If other server doesn't
 	 * exist, then we are the first node. Else, we are the second node. */
 	socket_fd = try_connect_client(atoi(argv[3]), argv[2], &bus_args,
@@ -82,14 +132,16 @@ main(int argc, char *argv[])
 			errExit("pthread_create");
 		}
 	}
+
 	setup_userfaultfd_region(shared_mapping.memory_address,
 				 shared_mapping.len, &userfaultfd_thread,
 				 &fault_handler_thread, socket_fd);
 
+	address_msi_pages((uint64_t)shared_mapping.memory_address);
 
 	/* Prompt User for Command */
 	for(;;) {
-		printf("What would you like to do? (R)ead/(w)rite/E(x)it?: ");
+		printf("\nWhat would you like to do? (R)ead/(w)rite/E(x)it?: ");
 		if (!fgets(fgets_buffer, INPUT_CMD_LEN, stdin))
 			errExit("fgets error");
 
@@ -103,9 +155,7 @@ main(int argc, char *argv[])
 			goto exit_success;
 		}
 		else if (!strncmp(fgets_buffer, "w", 1)){
-			memset(shared_mapping.memory_address, '@', 1024);
-			printf("#5. write address %p in main(): ",
-			       shared_mapping.memory_address);
+			handle_write_command();
 		}
 	}
 

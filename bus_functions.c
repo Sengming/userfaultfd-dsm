@@ -9,9 +9,23 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/mman.h>
+#include <stdbool.h>
 
 #include "bus_functions.h"
 #include "userfault_handler.h"
+
+extern struct msi_page pages[];
+extern unsigned long g_pages_mapped;
+
+static void set_pages_in_use(unsigned long num)
+{
+	unsigned long i;
+	for (i = 0; i < num; ++i)
+	{
+		pages[i].in_use = true;
+	}
+	g_pages_mapped = num;
+}
 
 void bus_thread_cleanup_handler(void* arg)
 {
@@ -70,6 +84,7 @@ int setup_server(int port, struct bus_thread_args* arg_output, struct mmap_args*
 	int page_size;
 	void* mmap_ptr;
 	int write_ret;
+	unsigned long num_pages;
 
 	struct msi_message msg;
 
@@ -107,7 +122,8 @@ int setup_server(int port, struct bus_thread_args* arg_output, struct mmap_args*
 	}
 
 	page_size = sysconf(_SC_PAGE_SIZE);
-	len = strtoul(command, NULL, 0) * page_size;
+	num_pages = strtoul(command, NULL, 0);
+	len =  num_pages * page_size;
 	if (len < 0)
 		errExit("strtoul_server_setup");
 
@@ -118,6 +134,8 @@ int setup_server(int port, struct bus_thread_args* arg_output, struct mmap_args*
 
 	printf("Local mmap: Addr: %p, Length: %d\n"
 	       ,mmap_ptr, len);
+
+	set_pages_in_use(num_pages);
 
 	/* Populate Message fields before sending */
 	msg.message_type = CONNECTION_ESTABLISHED;
@@ -183,6 +201,7 @@ int try_connect_client(int port, char* ip_string, struct
 		       ,msg.payload.memory_pair.address,
 		       msg.payload.memory_pair.size);
 	}
+	set_pages_in_use(msg.payload.memory_pair.size/sysconf(_SC_PAGE_SIZE));
 	/* Output mmap details so it can be handled in the userfaultfd */
 	mmap_output->memory_address = (void*)msg.payload.memory_pair.address;
 	mmap_output->len = msg.payload.memory_pair.size;
