@@ -29,7 +29,6 @@ void *
 fault_handler_thread(void *arg)
 {
 	static struct uffd_msg msg;   /* Data read from userfaultfd */
-	static int fault_cnt = 0;     /* Number of faults so far handled */
 	struct userfaultfd_thread_args* handler_arg = (struct
 						userfaultfd_thread_args*)arg;
 	long uffd;                    /* userfaultfd file descriptor */
@@ -61,7 +60,6 @@ fault_handler_thread(void *arg)
 
 		struct pollfd pollfd;
 		int nready;
-
 		/* [H3: point 1]
 		 * Add uffd as the fd to poll. Wait for POLLIN event which means
 		 * the fd has data to read - corresponding with uffd_msg
@@ -74,12 +72,6 @@ fault_handler_thread(void *arg)
 		nready = poll(&pollfd, 1, -1);
 		if (nready == -1)
 			errExit("poll");
-
-		printf("\nfault_handler_thread():\n");
-		printf("    poll() returns: nready = %d; "
-                       "POLLIN = %d; POLLERR = %d\n", nready,
-                       (pollfd.revents & POLLIN) != 0,
-                       (pollfd.revents & POLLERR) != 0);
 
 		/* [H4: point 1]
 		 * Read data from the userfaultfd. This data with be of the type
@@ -114,19 +106,11 @@ fault_handler_thread(void *arg)
 		 * In the case it IS a PAGEFAULT event, print out the flags and
 		 * the address.
 		 */
-		printf("    UFFD_EVENT_PAGEFAULT event: ");
+//		printf("    UFFD_EVENT_PAGEFAULT event: ");
 		printf("flags = %llx; ", msg.arg.pagefault.flags);
-		printf("address = %llx\n", msg.arg.pagefault.address);
-
-		/* [H7: point 1]
-		 * Fill the previously mapped page with 'A' + number of faults
-		 * mod 20 for up to page_size. Similar to what is done on the
-		 * man page example. This math here is just to increase the
-		 * character A->B->C up to a limit of A+20, then it rolls back
-		 * to A.
-		 */
+//		printf("address = %llx\n", msg.arg.pagefault.address);
 		memset(page, 0, page_size);
-		fault_cnt++;
+	//	fault_cnt++;
 
 		uffdio_copy.src = (unsigned long) page;
 		uffdio_copy.dst = (unsigned long) msg.arg.pagefault.address &
@@ -137,9 +121,10 @@ fault_handler_thread(void *arg)
 
 		if (ioctl(uffd, UFFDIO_COPY, &uffdio_copy) == -1)
 			errExit("ioctl-UFFDIO_COPY");
+		printf("\n[x]PAGEFAULT\n");
 
-		printf("        (uffdio_copy.copy returned %lld)\n",
-                       uffdio_copy.copy);
+	//	printf("        (uffdio_copy.copy returned %lld)\n",
+        //               uffdio_copy.copy);
 	}
 }
 

@@ -52,25 +52,58 @@ static void address_msi_pages(uint64_t mmap_addr)
 
 static void handle_write_command()
 {
-	char cmd_buffer[INPUT_CMD_LEN];
-	char write_buffer[WRITE_BUF_LEN];
+	char cmd_buffer[INPUT_CMD_LEN] = {0};
+	char write_buffer[WRITE_BUF_LEN] = {0};
 	unsigned long page_num;
-	printf("\nWhat page would you like to write to? (1-N or i): ");
+	int iterator;
+	printf("\nWhat page would you like to write to? (0-N or i): ");
 	if (!fgets(cmd_buffer, INPUT_CMD_LEN, stdin))
+		errExit("fgets error");
+
+	printf("\nWhat would you like to write?:\n");
+	if (!fgets(write_buffer, WRITE_BUF_LEN, stdin))
 		errExit("fgets error");
 
 	page_num = strtoul(cmd_buffer, NULL, 0);
 	if (page_num < g_pages_mapped) {
-		printf("\nWhat would you like to write?:\n");
-		if (!fgets(write_buffer, WRITE_BUF_LEN, stdin))
-			errExit("fgets error");
 		printf("\nCopying %s to address %p\n", write_buffer,
 		       pages[page_num].start_address);
 		memcpy(pages[page_num].start_address, write_buffer,
 		       strlen(write_buffer));
 	}
 	else if (!strncmp(cmd_buffer, "i", 1)){
+		for (iterator = 0; iterator < g_pages_mapped; ++iterator) {
+			memcpy(pages[iterator].start_address,write_buffer,
+				strlen(write_buffer));
+		}
+	}
+}
 
+static void handle_read_command()
+{
+	char cmd_buffer[INPUT_CMD_LEN] = {0};
+	unsigned long page_num;
+	int iterator;
+	char *probe;
+
+	printf("\nWhat page would you like to read from? (0-N or i): ");
+	if (!fgets(cmd_buffer, INPUT_CMD_LEN, stdin))
+		errExit("fgets error");
+
+	page_num = strtoul(cmd_buffer, NULL, 0);
+	if (page_num < g_pages_mapped) {
+		probe = (char*)pages[page_num].start_address;
+		*probe;
+		if (*probe == (int)0){
+			printf("Read String: \n");
+		}
+		else {
+			printf("Read String: %s\n", probe);
+		}
+	}
+	else if (!strncmp(cmd_buffer, "i", 1)){
+		for (iterator = 0; iterator < g_pages_mapped; ++iterator) {
+		}
 	}
 }
 
@@ -156,6 +189,9 @@ main(int argc, char *argv[])
 		}
 		else if (!strncmp(fgets_buffer, "w", 1)){
 			handle_write_command();
+		}
+		else if (!strncmp(fgets_buffer, "r", 1)){
+			handle_read_command();
 		}
 	}
 

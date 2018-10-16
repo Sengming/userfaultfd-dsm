@@ -8,6 +8,7 @@
 #define INPUT_CMD_LEN (20)
 #define MAX_PAGES     (100)
 #define WRITE_BUF_LEN (100)
+#define READ_BUF_LEN  (100)
 
 #define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE);	\
 	} while (0)
