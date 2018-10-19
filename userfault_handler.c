@@ -38,15 +38,6 @@ fault_handler_thread(void *arg)
 
 	uffd = handler_arg->uffd;
 
-	/* [H1: point 1]
-	 * It the page pointer is NULL and hasn't been mapped before (see that
-	 * they're static variables), let the kernel choose where to map the
-	 * memory to, but make sure its size is page_size. Allow reading and
-	 * writing to the page, the mapping is not backed by any file and is
-	 * private to the process - not visible to other processes. FD is set to
-	 * -1 since we're not backed by physical file anyway (-1 required for
-	 * portability). Offset is 0. Exit with an error if we fail.
-	 */
 	if (page == NULL) {
 		page = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -55,34 +46,14 @@ fault_handler_thread(void *arg)
 	}
 
 	for (;;) {
-
-		/* See what poll() tells us about the userfaultfd */
-
 		struct pollfd pollfd;
 		int nready;
-		/* [H3: point 1]
-		 * Add uffd as the fd to poll. Wait for POLLIN event which means
-		 * the fd has data to read - corresponding with uffd_msg
-		 * structure becoming available due to access of registered
-		 * memory. Exit with error if poll returns error code. Else,
-		 * continue and print out if the POLLIN/POLLERR bits are set.
-		 */
 		pollfd.fd = uffd;
 		pollfd.events = POLLIN;
 		nready = poll(&pollfd, 1, -1);
 		if (nready == -1)
 			errExit("poll");
 
-		/* [H4: point 1]
-		 * Read data from the userfaultfd. This data with be of the type
-		 * struct uffd_msg and will contain details such as the event,
-		 * the fault flags, address of fault, userfault file descriptor
-		 * of child process, old and new addresses of remapped area,
-		 * original map length, start and end addresses of removed
-		 * areas. Exit with fault if read returns -1. These are in a
-		 * union so depending on the fault event, we look at the data
-		 * with different representations.
-		 */
 		nread = read(uffd, &msg, sizeof(msg));
 		if (nread == 0) {
 			printf("EOF on userfaultfd!\n");
@@ -92,25 +63,16 @@ fault_handler_thread(void *arg)
 		if (nread == -1)
 			errExit("read");
 
-		/* [H5: point 1]
-		 * If the event is an event other than PAGEFAULT event, exit
-		 * with an error as we do not handle other faults. There were
-		 * multiple other faults added in 4.11.
-		 */
 		if (msg.event != UFFD_EVENT_PAGEFAULT) {
 			fprintf(stderr, "Unexpected event on userfaultfd\n");
 			exit(EXIT_FAILURE);
 		}
 
-		/* [H6: point 1]
-		 * In the case it IS a PAGEFAULT event, print out the flags and
-		 * the address.
-		 */
 //		printf("    UFFD_EVENT_PAGEFAULT event: ");
-		printf("flags = %llx; ", msg.arg.pagefault.flags);
+//		printf("flags = %llx; ", msg.arg.pagefault.flags);
 //		printf("address = %llx\n", msg.arg.pagefault.address);
 		memset(page, 0, page_size);
-	//	fault_cnt++;
+//		fault_cnt++;
 
 		uffdio_copy.src = (unsigned long) page;
 		uffdio_copy.dst = (unsigned long) msg.arg.pagefault.address &
@@ -121,10 +83,7 @@ fault_handler_thread(void *arg)
 
 		if (ioctl(uffd, UFFDIO_COPY, &uffdio_copy) == -1)
 			errExit("ioctl-UFFDIO_COPY");
-		printf("\n[x]PAGEFAULT\n");
-
-	//	printf("        (uffdio_copy.copy returned %lld)\n",
-        //               uffdio_copy.copy);
+		printf("\n[%p]PAGEFAULT\n", (void *)msg.arg.pagefault.address);
 	}
 }
 

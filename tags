@@ -11,33 +11,66 @@ DEPCFLAGS	Makefile	/^DEPCFLAGS = -MD -MF $(DEPS_DIR)\/$*.d -MP$/;"	m
 DEPS_DIR	Makefile	/^DEPS_DIR  := $(CUR_DIR)\/.deps$(LIB_SUFFIX)$/;"	m
 DISCONNECT	messages.h	/^	DISCONNECT,$/;"	e	enum:msi_message_type
 EXE_FILES	Makefile	/^EXE_FILES = $(SRC_FILES:.c=)$/;"	m
-INPUT_CMD_LEN	dsm_userspace.c	25;"	d	file:
+INPUT_CMD_LEN	types.h	8;"	d
+INVALID	types.h	/^	INVALID = 0,$/;"	e	enum:msi_tag
 INVALID_STATE_READ	messages.h	/^	INVALID_STATE_READ,$/;"	e	enum:msi_message_type
+MAX_PAGES	types.h	9;"	d
+MODIFIED	types.h	/^	MODIFIED,$/;"	e	enum:msi_tag
+NUM_TAGS	types.h	/^	NUM_TAGS$/;"	e	enum:msi_tag
+OBJ_FILES	Makefile	/^OBJ_FILES := bus_functions.o userfault_handler.o dsm_userspace.o$/;"	m
 PAGE_REPLY	messages.h	/^	PAGE_REPLY,$/;"	e	enum:msi_message_type
+READ_BUF_LEN	types.h	11;"	d
+SHARED	types.h	/^	SHARED,$/;"	e	enum:msi_tag
 SRC_FILES	Makefile	/^SRC_FILES = $(wildcard *.c)$/;"	m
 TOTAL_MESSAGES	messages.h	/^	TOTAL_MESSAGES$/;"	e	enum:msi_message_type
+TOTAL_NUM_ARGS	dsm_userspace.c	26;"	d	file:
+WRITE_BUF_LEN	types.h	10;"	d
 _GNU_SOURCE	dsm_userspace.c	1;"	d	file:
+__BUS_FUNCTIONS_H__	bus_functions.h	2;"	d
 __MESSAGES_H__	messages.h	2;"	d
 __TYPES_H__	types.h	2;"	d
+__USERFAULT_HANDLER_H__	userfault_handler.h	2;"	d
 address	messages.h	/^	uint64_t address;$/;"	m	struct:memory_pair
+address_msi_pages	dsm_userspace.c	/^static void address_msi_pages(uint64_t mmap_addr)$/;"	f	file:
 bus_thread_args	types.h	/^struct bus_thread_args$/;"	s
-bus_thread_cleanup_handler	dsm_userspace.c	/^void bus_thread_cleanup_handler(void* arg)$/;"	f
-bus_thread_handler	dsm_userspace.c	/^static void* bus_thread_handler(void* arg)$/;"	f	file:
+bus_thread_cleanup_handler	bus_functions.c	/^void bus_thread_cleanup_handler(void* arg)$/;"	f
+bus_thread_handler	bus_functions.c	/^void* bus_thread_handler(void* arg)$/;"	f
 command_ack	messages.h	/^	struct command_ack command_ack;$/;"	m	union:message_payload	typeref:struct:message_payload::command_ack
 command_ack	messages.h	/^struct command_ack$/;"	s
 err	messages.h	/^	int err;$/;"	m	struct:command_ack
-errExit	dsm_userspace.c	27;"	d	file:
+errExit	types.h	13;"	d
+fault_handler_thread	userfault_handler.c	/^fault_handler_thread(void *arg)$/;"	f
 fd	types.h	/^	int fd;$/;"	m	struct:bus_thread_args
+g_pages_mapped	dsm_userspace.c	/^unsigned long g_pages_mapped;$/;"	v
+handle_read_command	dsm_userspace.c	/^static void handle_read_command()$/;"	f	file:
+handle_write_command	dsm_userspace.c	/^static void handle_write_command()$/;"	f	file:
+in_use	types.h	/^	bool in_use;$/;"	m	struct:msi_page
+initialize_msi_pages	dsm_userspace.c	/^static void initialize_msi_pages()$/;"	f	file:
+len	types.h	/^	uint64_t len;$/;"	m	struct:bus_thread_args
+len	types.h	/^	uint64_t len;$/;"	m	struct:mmap_args
 main	dsm_userspace.c	/^main(int argc, char *argv[])$/;"	f
 memory_address	types.h	/^	uint64_t memory_address;$/;"	m	struct:bus_thread_args
+memory_address	types.h	/^	void* memory_address;$/;"	m	struct:mmap_args
 memory_pair	messages.h	/^	struct memory_pair memory_pair;$/;"	m	union:message_payload	typeref:struct:message_payload::memory_pair
 memory_pair	messages.h	/^struct memory_pair$/;"	s
 message_payload	messages.h	/^union message_payload$/;"	u
 message_type	messages.h	/^	enum msi_message_type message_type;$/;"	m	struct:msi_message	typeref:enum:msi_message::msi_message_type
+mmap_args	types.h	/^struct mmap_args$/;"	s
 msi_message	messages.h	/^struct msi_message$/;"	s
 msi_message_type	messages.h	/^enum msi_message_type$/;"	g
+msi_page	types.h	/^struct msi_page$/;"	s
+msi_tag	types.h	/^enum msi_tag$/;"	g
+mutex	types.h	/^	pthread_mutex_t mutex;$/;"	m	struct:msi_page
+page_size	userfault_handler.c	/^static int page_size = 4096;$/;"	v	file:
+pages	dsm_userspace.c	/^struct msi_page pages[MAX_PAGES];$/;"	v	typeref:struct:msi_page
 payload	messages.h	/^	union message_payload payload;$/;"	m	struct:msi_message	typeref:union:msi_message::message_payload
-setup_server	dsm_userspace.c	/^static int setup_server(int port, struct bus_thread_args* arg_output)$/;"	f	file:
+set_pages_in_use	bus_functions.c	/^static void set_pages_in_use(unsigned long num)$/;"	f	file:
+setup_server	bus_functions.c	/^int setup_server(int port, struct bus_thread_args* arg_output, struct mmap_args*$/;"	f
+setup_userfaultfd_region	userfault_handler.c	/^long setup_userfaultfd_region(void* start_region, uint64_t length,$/;"	f
 size	messages.h	/^	uint64_t size;$/;"	m	struct:memory_pair
-size	types.h	/^	uint64_t size;$/;"	m	struct:bus_thread_args
-try_connect_client	dsm_userspace.c	/^static int try_connect_client(int port, char* ip_string, struct$/;"	f	file:
+sk	types.h	/^	int sk;$/;"	m	struct:userfaultfd_thread_args
+start_address	types.h	/^	void* start_address;$/;"	m	struct:msi_page
+tag	types.h	/^	enum msi_tag tag;$/;"	m	struct:msi_page	typeref:enum:msi_page::msi_tag
+try_connect_client	bus_functions.c	/^int try_connect_client(int port, char* ip_string, struct$/;"	f
+uffd	types.h	/^	long uffd;$/;"	m	struct:userfaultfd_thread_args
+userfaultfd_thread_args	types.h	/^struct userfaultfd_thread_args$/;"	s

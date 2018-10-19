@@ -55,8 +55,8 @@ static void handle_write_command()
 	char cmd_buffer[INPUT_CMD_LEN] = {0};
 	char write_buffer[WRITE_BUF_LEN] = {0};
 	unsigned long page_num;
-	int iterator;
-	printf("\nWhat page would you like to write to? (0-N or i): ");
+	unsigned long iterator;
+	printf("\nWhat page would you like to write to? (0 to N-1 or i): ");
 	if (!fgets(cmd_buffer, INPUT_CMD_LEN, stdin))
 		errExit("fgets error");
 
@@ -65,17 +65,17 @@ static void handle_write_command()
 		errExit("fgets error");
 
 	page_num = strtoul(cmd_buffer, NULL, 0);
-	if (page_num < g_pages_mapped) {
-		printf("\nCopying %s to address %p\n", write_buffer,
-		       pages[page_num].start_address);
-		memcpy(pages[page_num].start_address, write_buffer,
-		       strlen(write_buffer));
-	}
-	else if (!strncmp(cmd_buffer, "i", 1)){
+	if (!strncmp(cmd_buffer, "i", 1)){
 		for (iterator = 0; iterator < g_pages_mapped; ++iterator) {
 			memcpy(pages[iterator].start_address,write_buffer,
 				strlen(write_buffer));
 		}
+	}
+	else if (page_num < g_pages_mapped) {
+		//printf("\nCopying %s to address %p\n", write_buffer,
+		//       pages[page_num].start_address);
+		memcpy(pages[page_num].start_address, write_buffer,
+		       strlen(write_buffer));
 	}
 }
 
@@ -83,26 +83,37 @@ static void handle_read_command()
 {
 	char cmd_buffer[INPUT_CMD_LEN] = {0};
 	unsigned long page_num;
-	int iterator;
+	unsigned long iterator;
 	char *probe;
 
-	printf("\nWhat page would you like to read from? (0-N or i): ");
+	printf("\nWhat page would you like to read from? (0 to N-1 or i): ");
 	if (!fgets(cmd_buffer, INPUT_CMD_LEN, stdin))
 		errExit("fgets error");
 
 	page_num = strtoul(cmd_buffer, NULL, 0);
-	if (page_num < g_pages_mapped) {
+	if (!strncmp(cmd_buffer, "i", 1)){
+		for (iterator = 0; iterator < g_pages_mapped; ++iterator) {
+			probe = (char*)pages[iterator].start_address;
+			char c = *probe;
+			if (*probe == (int)0){
+				/* If the page has not been written to yet */
+				printf("[*]Page %lu:\n\n", iterator);
+			}
+			else {
+				/* String contained in page */
+				printf("[*]Page %lu:\n%s\n", iterator, probe);
+			}
+
+		}
+	}
+	else if (page_num < g_pages_mapped) {
 		probe = (char*)pages[page_num].start_address;
-		*probe;
+		char c = *probe;
 		if (*probe == (int)0){
 			printf("Read String: \n");
 		}
 		else {
 			printf("Read String: %s\n", probe);
-		}
-	}
-	else if (!strncmp(cmd_buffer, "i", 1)){
-		for (iterator = 0; iterator < g_pages_mapped; ++iterator) {
 		}
 	}
 }
@@ -174,7 +185,7 @@ main(int argc, char *argv[])
 
 	/* Prompt User for Command */
 	for(;;) {
-		printf("\nWhat would you like to do? (R)ead/(w)rite/E(x)it?: ");
+		printf("\nWhat would you like to do? (r)ead/(w)rite/E(x)it?: ");
 		if (!fgets(fgets_buffer, INPUT_CMD_LEN, stdin))
 			errExit("fgets error");
 
