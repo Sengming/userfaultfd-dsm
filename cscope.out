@@ -1,4 +1,4 @@
-cscope 15 $HOME/VT/LKP_5984/assignment3/dsm_userspace               0000203042
+cscope 15 $HOME/VT/LKP_5984/assignment3/dsm_userspace               0000205239
 	@bus_functions.c
 
 1 
@@ -1795,85 +1795,471 @@ __MESSAGES_H__
 
 	)
 
-4 
+3 
+	~<¡dšt.h
+>
+
+5 
 	emsi_mes§ge_ty³
 
 
-6 
+7 
 	mCONNECTION_ESTABLISHED
  = 0,
 
-7 
+8 
 	mDISCONNECT
 ,
 
-8 
+9 
 	mINVALID_STATE_READ
 ,
 
-9 
+10 
 	mPAGE_REPLY
 ,
 
-10 
+11 
 	mTOTAL_MESSAGES
 
 
-13 
+14 
 	smemÜy_·œ
 
 
-15 
+16 
 ušt64_t
  
 	madd»ss
 ;
 
-16 
+17 
 ušt64_t
  
 	msize
 ;
 
-19 
+20 
 	scommªd_ack
 
 
-21 
+22 
 	m”r
 ;
 
-24 
+25 
+	s»que¡_·ge
+
+
+27 
+ušt64_t
+ 
+	madd»ss
+;
+
+28 
+ušt64_t
+ 
+	msize
+;
+
+32 
 	umes§ge_·ylßd
 
 
-26 
+34 
 memÜy_·œ
  
 	mmemÜy_·œ
 ;
 
-27 
+35 
 commªd_ack
  
 	mcommªd_ack
 ;
 
-30 
+36 
+»que¡_·ge
+ 
+	m»que¡_·ge
+;
+
+39 
 	smsi_mes§ge
 
 
-32 
+41 
 msi_mes§ge_ty³
  
 	mmes§ge_ty³
 ;
 
-33 
+42 
 mes§ge_·ylßd
  
 	m·ylßd
 ;
+
+45 
+	smsi_·ge_d©a_·ylßd
+
+
+47 
+msi_mes§ge_ty³
+ 
+	mmes§ge_ty³
+;
+
+48 
+	m·ylßd
+[4096];
+
+	@msi_statemachine.c
+
+1 
+	~<sys/mmª.h
+>
+
+2 
+	~<”ºo.h
+>
+
+3 
+	~<uni¡d.h
+>
+
+4 
+	~<¡dlib.h
+>
+
+5 
+	~<sys/ty³s.h
+>
+
+6 
+	~"msi_¡©emachše.h
+"
+
+7 
+	~"mes§ges.h
+"
+
+8 
+	~"ty³s.h
+"
+
+9 
+	~"¡dšt.h
+"
+
+10 
+	~"¡dio.h
+"
+
+11 
+	~<¡ršg.h
+>
+
+13 
+msi_·ge
+ 
+·ges
+[];
+
+14 
+g_·ges_m­³d
+;
+
+16 
+msi_·ge
+* 
+	$fšd_msi_·ge
+(* 
+çuÉ_addr
+)
+
+18 
+msi_·ge
+* 
+·ge
+ = 
+NULL
+;
+
+19 
+ušt64_t
+ 
+addr_v®
+ = (ušt64_t)
+çuÉ_addr
+;
+
+20 
+™”©Ü
+ = 0;
+
+22 
+™”©Ü
+ = 0; i‹¿tÜ < 
+g_·ges_m­³d
+; ++iterator){
+
+23 ià((
+ušt64_t
+)
+·ges
+[
+™”©Ü
+].
+¡¬t_add»ss
++
+	`syscÚf
+(
+_SC_PAGE_SIZE
+)
+
+24 > 
+addr_v®
+){
+
+25 
+·ge
+ = &
+·ges
+[
+™”©Ü
+];
+
+30  
+·ge
+;
+
+31 
+	}
+}
+
+33 
+	$msi_»que¡_·ge
+(
+sk
+, * 
+·ge
+, * 
+çuÉ_addr
+)
+
+35 
+wr™e_»t
+;
+
+36 
+msi_mes§ge
+ 
+msg
+;
+
+37 
+msi_·ge
+* 
+·ge_to_Œªs™iÚ
+ = 
+	`fšd_msi_·ge
+(
+çuÉ_addr
+);
+
+38 ià(!
+·ge_to_Œªs™iÚ
+){
+
+39 
+	`”rEx™
+("Unableo find…age\n");
+
+41 
+	`´štf
+("ms˜g: %u, %p\n", 
+·ge_to_Œªs™iÚ
+->
+g
+,
+
+42 
+·ge_to_Œªs™iÚ
+->
+¡¬t_add»ss
+);
+
+47 
+msg
+.
+mes§ge_ty³
+ = 
+INVALID_STATE_READ
+;
+
+48 
+msg
+.
+·ylßd
+.
+»que¡_·ge
+.
+add»ss
+ = (
+ušt64_t
+)
+çuÉ_addr
+;
+
+49 
+msg
+.
+·ylßd
+.
+»que¡_·ge
+.
+size
+ = 
+	`syscÚf
+(
+_SC_PAGE_SIZE
+);
+
+50 
+wr™e_»t
+ = 
+	`wr™e
+(
+sk
+, &
+msg
+ , (msg));
+
+51 ià(
+wr™e_»t
+ <= 0) {
+
+52 
+	`”rEx™
+("msi_i_to_sƒrror");
+
+55 
+»ad_»t
+ = 
+	`»ad
+(
+sk
+);
+
+57 
+	}
+}
+
+59 
+	$msi_hªdË_·ge_»que¡
+(
+sk
+, 
+msi_mes§ge
+* 
+š_msg
+)
+
+61 
+wr™e_»t
+;
+
+62 
+msi_·ge_d©a_·ylßd
+ * 
+msg_out
+ = (
+
+63 
+msi_·ge_d©a_·ylßd
+*)
+	`m®loc
+((msi_page_data_payload));
+
+64 
+msg_out
+->
+mes§ge_ty³
+ = 
+PAGE_REPLY
+;
+
+65 
+	`memýy
+(
+msg_out
+->
+·ylßd
+, (*)
+š_msg
+->·ylßd.
+»que¡_·ge
+.
+add»ss
+,
+
+66 
+	`syscÚf
+(
+_SC_PAGE_SIZE
+));
+
+67 
+wr™e_»t
+ = 
+	`wr™e
+(
+sk
+, 
+msg_out
+, (*msg_out));
+
+68 ià(
+wr™e_»t
+ <= 0) {
+
+69 
+	`”rEx™
+("msi_i_to_sƒrror");
+
+71 
+	`ä“
+(
+msg_out
+);
+
+72 
+	}
+}
+
+	@msi_statemachine.h
+
+1 #iâdeà
+__MSI_STATEMACHINE_H__
+
+
+2 
+	#__MSI_STATEMACHINE_H__
+
+
+	)
+
+4 
+msi_»que¡_·ge
+(
+sk
+, * 
+·ge
+, * 
+çuÉ_addr
+);
 
 	@types.h
 
@@ -2097,67 +2483,71 @@ ušt64_t
 	~"ty³s.h
 "
 
-19 
+18 
+	~"msi_¡©emachše.h
+"
+
+20 
 	g·ge_size
  = 4096;
 
-29 
+30 
 	$çuÉ_hªdËr_th»ad
 (*
 ¬g
 )
 
-31 
+32 
 uffd_msg
  
 msg
 ;
 
-32 
+33 
 u£rçuÉfd_th»ad_¬gs
 * 
 hªdËr_¬g
  = (
 
-33 
+34 
 u£rçuÉfd_th»ad_¬gs
 *)
 ¬g
 ;
 
-34 
+35 
 uffd
 ;
 
-35 *
+36 *
 ·ge
  = 
 NULL
 ;
 
-36 
+37 
 uffdio_cÝy
  uffdio_copy;
 
-37 
+38 
 ssize_t
  
 Ä—d
 ;
 
-39 
+40 
 uffd
  = 
 hªdËr_¬g
 ->uffd;
 
-41 ià(
+42 ià(
 ·ge
  =ð
 NULL
 ) {
 
-42 
+43 
 ·ge
  = 
 	`mm­
@@ -2171,31 +2561,39 @@ PROT_READ
 PROT_WRITE
 ,
 
-43 
+44 
 MAP_PRIVATE
  | 
 MAP_ANONYMOUS
 , -1, 0);
 
-44 ià(
+45 ià(
 ·ge
  =ð
 MAP_FAILED
 )
 
-45 
+46 
 	`”rEx™
 ("mmap");
 
-49 
+47 
+	`mem£t
+(
+·ge
+, 0, 
+·ge_size
+);
+
+51 
 pÞlfd
 …ollfd;
 
-50 
+52 
 Ä—dy
 ;
 
-51 
+53 
 pÞlfd
 .
 fd
@@ -2203,7 +2601,7 @@ fd
 uffd
 ;
 
-52 
+54 
 pÞlfd
 .
 ev’ts
@@ -2211,7 +2609,7 @@ ev’ts
 POLLIN
 ;
 
-53 
+55 
 Ä—dy
  = 
 	`pÞl
@@ -2219,15 +2617,15 @@ POLLIN
 pÞlfd
 , 1, -1);
 
-54 ià(
+56 ià(
 Ä—dy
  == -1)
 
-55 
+57 
 	`”rEx™
 ("poll");
 
-57 
+59 
 Ä—d
  = 
 	`»ad
@@ -2237,29 +2635,29 @@ uffd
 msg
 , (msg));
 
-58 ià(
+60 ià(
 Ä—d
  == 0) {
 
-59 
+61 
 	`´štf
 ("EOF on userfaultfd!\n");
 
-60 
+62 
 	`ex™
 (
 EXIT_FAILURE
 );
 
-63 ià(
+65 ià(
 Ä—d
  == -1)
 
-64 
+66 
 	`”rEx™
 ("read");
 
-66 ià(
+68 ià(
 msg
 .
 ev’t
@@ -2267,27 +2665,37 @@ ev’t
 UFFD_EVENT_PAGEFAULT
 ) {
 
-67 
+69 
 	`årštf
 (
 ¡d”r
 , "Unexpectedƒvent on userfaultfd\n");
 
-68 
+70 
 	`ex™
 (
 EXIT_FAILURE
 );
 
-74 
-	`mem£t
+77 
+	`msi_»que¡_·ge
 (
+hªdËr_¬g
+->
+sk
+, 
 ·ge
-, 0, 
-·ge_size
+, 
+msg
+.
+¬g
+.
+·geçuÉ
+.
+add»ss
 );
 
-77 
+79 
 uffdio_cÝy
 .
 ¤c
@@ -2295,7 +2703,7 @@ uffdio_cÝy
 ·ge
 ;
 
-78 
+80 
 uffdio_cÝy
 .
 d¡
@@ -2309,11 +2717,11 @@ msg
 add»ss
  &
 
-79 ~(
+81 ~(
 ·ge_size
  - 1);
 
-80 
+82 
 uffdio_cÝy
 .
 Ën
@@ -2321,19 +2729,19 @@ uffdio_cÝy
 ·ge_size
 ;
 
-81 
+83 
 uffdio_cÝy
 .
 mode
  = 0;
 
-82 
+84 
 uffdio_cÝy
 .
 cÝy
  = 0;
 
-84 ià(
+86 ià(
 	`ioùl
 (
 uffd
@@ -2343,11 +2751,11 @@ UFFDIO_COPY
 uffdio_cÝy
 ) == -1)
 
-85 
+87 
 	`”rEx™
 ("ioctl-UFFDIO_COPY");
 
-86 
+88 
 	`´štf
 ("\n[%p]PAGEFAULT\n", (*)
 msg
@@ -2359,11 +2767,11 @@ msg
 add»ss
 );
 
-88 
+90 
 	}
 }
 
-100 
+102 
 	$£tup_u£rçuÉfd_»giÚ
 (* 
 ¡¬t_»giÚ
@@ -2373,7 +2781,7 @@ ušt64_t
 Ëngth
 ,
 
-101 
+103 
 ±h»ad_t
 * 
 thr
@@ -2383,45 +2791,45 @@ hªdËr
 sk
 )
 
-103 
+105 
 uffd
 ;
 
-104 
+106 
 uffdio_­i
  uffdio_api;
 
-105 
+107 
 uffdio_»gi¡”
  uffdio_register;
 
-106 
+108 
 ±h»ad_»t
 ;
 
-107 
+109 
 u£rçuÉfd_th»ad_¬gs
 * 
 ¬gs
  =
 
-108 (
+110 (
 u£rçuÉfd_th»ad_¬gs
 *)
 	`m®loc
 ((
 
-109 
+111 
 u£rçuÉfd_th»ad_¬gs
 ));
 
-110 
+112 
 ¬gs
 ->
 sk
  = sk;
 
-112 
+114 
 uffd
  = 
 	`sysÿÎ
@@ -2433,21 +2841,21 @@ O_CLOEXEC
 O_NONBLOCK
 );
 
-114 ià(
+116 ià(
 uffd
  == -1)
 
-115 
+117 
 	`”rEx™
 ("userfaultfd");
 
-117 
+119 
 ¬gs
 ->
 uffd
  = uffd;
 
-119 
+121 
 uffdio_­i
 .
 ­i
@@ -2455,13 +2863,13 @@ uffdio_­i
 UFFD_API
 ;
 
-120 
+122 
 uffdio_­i
 .
 ã©u»s
  = 0;
 
-121 ià(
+123 ià(
 	`ioùl
 (
 uffd
@@ -2471,11 +2879,11 @@ UFFDIO_API
 uffdio_­i
 ) == -1)
 
-122 
+124 
 	`”rEx™
 ("ioctl-UFFDIO_API");
 
-124 
+126 
 uffdio_»gi¡”
 .
 ¿nge
@@ -2485,7 +2893,7 @@ uffdio_»gi¡”
 ¡¬t_»giÚ
 ;
 
-125 
+127 
 uffdio_»gi¡”
 .
 ¿nge
@@ -2495,7 +2903,7 @@ uffdio_»gi¡”
 Ëngth
 ;
 
-126 
+128 
 uffdio_»gi¡”
 .
 mode
@@ -2503,7 +2911,7 @@ mode
 UFFDIO_REGISTER_MODE_MISSING
 ;
 
-127 ià(
+129 ià(
 	`ioùl
 (
 uffd
@@ -2513,11 +2921,11 @@ UFFDIO_REGISTER
 uffdio_»gi¡”
 ) == -1)
 
-128 
+130 
 	`”rEx™
 ("ioctl-UFFDIO_REGISTER");
 
-130 
+132 
 ±h»ad_»t
  = 
 	`±h»ad_ü—‹
@@ -2531,25 +2939,25 @@ hªdËr
 ¬gs
 );
 
-131 ià(
+133 ià(
 ±h»ad_»t
  != 0) {
 
-132 
+134 
 ”ºo
  = 
 ±h»ad_»t
 ;
 
-133 
+135 
 	`”rEx™
 ("pthread_create");
 
-136  
+138  
 uffd
 ;
 
-137 
+139 
 	}
 }
 
@@ -35548,12 +35956,14 @@ __END_DECLS
 .
 1
 /usr/include
-37
-807
+39
+845
 bus_functions.c
 bus_functions.h
 dsm_userspace.c
 messages.h
+msi_statemachine.c
+msi_statemachine.h
 types.h
 userfault_handler.c
 userfault_handler.h

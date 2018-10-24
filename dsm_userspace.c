@@ -40,13 +40,14 @@ static void initialize_msi_pages()
 	}
 }
 
-static void address_msi_pages(uint64_t mmap_addr)
+static void address_msi_pages(uint64_t mmap_addr, uint64_t phy_addr)
 {
 	int i;
 	uint64_t page_addr = mmap_addr;
 	int page_size = sysconf(_SC_PAGE_SIZE);
-	for(i = 0; i < MAX_PAGES; ++i, page_addr+=page_size){
+	for(i = 0; i < MAX_PAGES; ++i, page_addr+=page_size, phy_addr+=page_size){
 		pages[i].start_address = (void*)page_addr;
+		pages[i].physical_address = (void*)phy_addr;
 	}
 }
 
@@ -132,7 +133,7 @@ main(int argc, char *argv[])
 	/* User fault thread related */
 	struct mmap_args shared_mapping;
 	pthread_t userfaultfd_thread;
-
+	void* physical_address;
 	int exit_write_ret;
 
 	/* Message */
@@ -178,10 +179,12 @@ main(int argc, char *argv[])
 	}
 
 	setup_userfaultfd_region(shared_mapping.memory_address,
+				 &physical_address,
 				 shared_mapping.len, &userfaultfd_thread,
 				 &fault_handler_thread, socket_fd);
 
-	address_msi_pages((uint64_t)shared_mapping.memory_address);
+	address_msi_pages((uint64_t)shared_mapping.memory_address,
+			  (uint64_t)physical_address);
 
 	/* Prompt User for Command */
 	for(;;) {

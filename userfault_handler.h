@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 void* fault_handler_thread(void *arg);
-long setup_userfaultfd_region(void* start_region, uint64_t length,
+long setup_userfaultfd_region(void* start_region, void** physical_region, uint64_t length,
 			     pthread_t* thr, void* (*handler)(void*), int sk);
 
 #endif

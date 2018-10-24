@@ -17,7 +17,7 @@ INVALID_STATE_READ	messages.h	/^	INVALID_STATE_READ,$/;"	e	enum:msi_message_type
 MAX_PAGES	types.h	9;"	d
 MODIFIED	types.h	/^	MODIFIED,$/;"	e	enum:msi_tag
 NUM_TAGS	types.h	/^	NUM_TAGS$/;"	e	enum:msi_tag
-OBJ_FILES	Makefile	/^OBJ_FILES := bus_functions.o userfault_handler.o dsm_userspace.o$/;"	m
+OBJ_FILES	Makefile	/^OBJ_FILES := bus_functions.o userfault_handler.o dsm_userspace.o msi_statemachine.o$/;"	m
 PAGE_REPLY	messages.h	/^	PAGE_REPLY,$/;"	e	enum:msi_message_type
 READ_BUF_LEN	types.h	11;"	d
 SHARED	types.h	/^	SHARED,$/;"	e	enum:msi_tag
@@ -28,9 +28,11 @@ WRITE_BUF_LEN	types.h	10;"	d
 _GNU_SOURCE	dsm_userspace.c	1;"	d	file:
 __BUS_FUNCTIONS_H__	bus_functions.h	2;"	d
 __MESSAGES_H__	messages.h	2;"	d
+__MSI_STATEMACHINE_H__	msi_statemachine.h	2;"	d
 __TYPES_H__	types.h	2;"	d
 __USERFAULT_HANDLER_H__	userfault_handler.h	2;"	d
 address	messages.h	/^	uint64_t address;$/;"	m	struct:memory_pair
+address	messages.h	/^	uint64_t address;$/;"	m	struct:request_page
 address_msi_pages	dsm_userspace.c	/^static void address_msi_pages(uint64_t mmap_addr)$/;"	f	file:
 bus_thread_args	types.h	/^struct bus_thread_args$/;"	s
 bus_thread_cleanup_handler	bus_functions.c	/^void bus_thread_cleanup_handler(void* arg)$/;"	f
@@ -41,6 +43,7 @@ err	messages.h	/^	int err;$/;"	m	struct:command_ack
 errExit	types.h	13;"	d
 fault_handler_thread	userfault_handler.c	/^fault_handler_thread(void *arg)$/;"	f
 fd	types.h	/^	int fd;$/;"	m	struct:bus_thread_args
+find_msi_page	msi_statemachine.c	/^static struct msi_page* find_msi_page(void* fault_addr)$/;"	f	file:
 g_pages_mapped	dsm_userspace.c	/^unsigned long g_pages_mapped;$/;"	v
 handle_read_command	dsm_userspace.c	/^static void handle_read_command()$/;"	f	file:
 handle_write_command	dsm_userspace.c	/^static void handle_write_command()$/;"	f	file:
@@ -55,19 +58,27 @@ memory_pair	messages.h	/^	struct memory_pair memory_pair;$/;"	m	union:message_pa
 memory_pair	messages.h	/^struct memory_pair$/;"	s
 message_payload	messages.h	/^union message_payload$/;"	u
 message_type	messages.h	/^	enum msi_message_type message_type;$/;"	m	struct:msi_message	typeref:enum:msi_message::msi_message_type
+message_type	messages.h	/^	enum msi_message_type message_type;$/;"	m	struct:msi_page_data_payload	typeref:enum:msi_page_data_payload::msi_message_type
 mmap_args	types.h	/^struct mmap_args$/;"	s
+msi_handle_page_request	msi_statemachine.c	/^void msi_handle_page_request(int sk, struct msi_message* in_msg)$/;"	f
 msi_message	messages.h	/^struct msi_message$/;"	s
 msi_message_type	messages.h	/^enum msi_message_type$/;"	g
 msi_page	types.h	/^struct msi_page$/;"	s
+msi_page_data_payload	messages.h	/^struct msi_page_data_payload$/;"	s
+msi_request_page	msi_statemachine.c	/^void msi_request_page(int sk, char* page, void* fault_addr)$/;"	f
 msi_tag	types.h	/^enum msi_tag$/;"	g
 mutex	types.h	/^	pthread_mutex_t mutex;$/;"	m	struct:msi_page
 page_size	userfault_handler.c	/^static int page_size = 4096;$/;"	v	file:
 pages	dsm_userspace.c	/^struct msi_page pages[MAX_PAGES];$/;"	v	typeref:struct:msi_page
+payload	messages.h	/^	char payload[4096];$/;"	m	struct:msi_page_data_payload
 payload	messages.h	/^	union message_payload payload;$/;"	m	struct:msi_message	typeref:union:msi_message::message_payload
+request_page	messages.h	/^	struct request_page request_page;$/;"	m	union:message_payload	typeref:struct:message_payload::request_page
+request_page	messages.h	/^struct request_page$/;"	s
 set_pages_in_use	bus_functions.c	/^static void set_pages_in_use(unsigned long num)$/;"	f	file:
 setup_server	bus_functions.c	/^int setup_server(int port, struct bus_thread_args* arg_output, struct mmap_args*$/;"	f
 setup_userfaultfd_region	userfault_handler.c	/^long setup_userfaultfd_region(void* start_region, uint64_t length,$/;"	f
 size	messages.h	/^	uint64_t size;$/;"	m	struct:memory_pair
+size	messages.h	/^	uint64_t size;$/;"	m	struct:request_page
 sk	types.h	/^	int sk;$/;"	m	struct:userfaultfd_thread_args
 start_address	types.h	/^	void* start_address;$/;"	m	struct:msi_page
 tag	types.h	/^	enum msi_tag tag;$/;"	m	struct:msi_page	typeref:enum:msi_page::msi_tag

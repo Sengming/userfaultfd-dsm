@@ -1,5 +1,6 @@
 #ifndef __MESSAGES_H__
 #define __MESSAGES_H__
+#include <stdint.h>
 
 enum msi_message_type
 {
@@ -7,9 +8,11 @@ enum msi_message_type
 	DISCONNECT,
 	INVALID_STATE_READ,
 	PAGE_REPLY,
+	INVALIDATE,
+	INVALIDATE_ACK,
 	TOTAL_MESSAGES
 };
-
+/* Different types of payloads defined here*/
 struct memory_pair
 {
 	uint64_t address;
@@ -21,10 +24,18 @@ struct command_ack
 	int err;
 };
 
+struct request_page
+{
+	uint64_t address;
+	uint64_t size;
+};
+
+/* Message payload and its structure */
 union message_payload
 {
 	struct memory_pair memory_pair;
 	struct command_ack command_ack;
+	struct request_page request_page;
 };
 
 struct msi_message
@@ -33,8 +44,11 @@ struct msi_message
 	union message_payload payload;
 };
 
-
-
+struct msi_page_data_payload
+{
+	enum msi_message_type message_type;
+	char payload[4096];
+};
 
 
 

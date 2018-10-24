@@ -27,6 +27,7 @@ struct msi_page
 	enum msi_tag tag;
 	pthread_mutex_t mutex;
 	void* start_address;
+	void* physical_address;
 	bool in_use;
 };
 
@@ -46,6 +47,7 @@ struct mmap_args
 struct userfaultfd_thread_args
 {
 	int sk;
+	uint64_t physical_address;
 	long uffd;
 };
 

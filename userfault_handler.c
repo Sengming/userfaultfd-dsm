@@ -15,8 +15,8 @@
 
 #include "userfault_handler.h"
 #include "types.h"
+#include "msi_statemachine.h"
 
-static int page_size = 4096;
 
 /**
  * @brief Fault handler thread
@@ -32,18 +32,12 @@ fault_handler_thread(void *arg)
 	struct userfaultfd_thread_args* handler_arg = (struct
 						userfaultfd_thread_args*)arg;
 	long uffd;                    /* userfaultfd file descriptor */
-	static char *page = NULL;
+	char *page = (char*)handler_arg->physical_address;
 	struct uffdio_copy uffdio_copy;
 	ssize_t nread;
 
 	uffd = handler_arg->uffd;
 
-	if (page == NULL) {
-		page = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
-			    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-		if (page == MAP_FAILED)
-			errExit("mmap");
-	}
 
 	for (;;) {
 		struct pollfd pollfd;
@@ -69,15 +63,17 @@ fault_handler_thread(void *arg)
 		}
 
 //		printf("    UFFD_EVENT_PAGEFAULT event: ");
-//		printf("flags = %llx; ", msg.arg.pagefault.flags);
+		printf("flags = %llx; ", msg.arg.pagefault.flags);
 //		printf("address = %llx\n", msg.arg.pagefault.address);
-		memset(page, 0, page_size);
 //		fault_cnt++;
+		msi_request_page(handler_arg->sk, page,
+				 (void*)msg.arg.pagefault.address,
+				 msg.arg.pagefault.flags);
 
 		uffdio_copy.src = (unsigned long) page;
 		uffdio_copy.dst = (unsigned long) msg.arg.pagefault.address &
-			~(page_size - 1);
-		uffdio_copy.len = page_size;
+			~(sysconf(_SC_PAGE_SIZE)- 1);
+		uffdio_copy.len = sysconf(_SC_PAGE_SIZE);
 		uffdio_copy.mode = 0;
 		uffdio_copy.copy = 0;
 
@@ -97,7 +93,7 @@ fault_handler_thread(void *arg)
  *
  * @return user fault fd
  */
-long setup_userfaultfd_region(void* start_region, uint64_t length,
+long setup_userfaultfd_region(void* start_region, void** physical_region, uint64_t length,
 			     pthread_t* thr, void* (*handler)(void*), int sk)
 {
 	long uffd;          /* userfaultfd file descriptor */
@@ -107,8 +103,13 @@ long setup_userfaultfd_region(void* start_region, uint64_t length,
 	struct userfaultfd_thread_args* args =
 		(struct userfaultfd_thread_args*)malloc(sizeof(struct
 						userfaultfd_thread_args));
+	*physical_region = mmap(NULL, length, PROT_READ | PROT_WRITE,
+		    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	if (*physical_region == MAP_FAILED)
+		errExit("mmap");
+	memset(*physical_region, 0, length);
 	args->sk = sk;
-
+	args->physical_address = (uint64_t)*physical_region;
 	uffd = syscall(__NR_userfaultfd, O_CLOEXEC | O_NONBLOCK);
 
 	if (uffd == -1)

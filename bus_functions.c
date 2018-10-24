@@ -13,6 +13,7 @@
 
 #include "bus_functions.h"
 #include "userfault_handler.h"
+#include "msi_statemachine.h"
 
 extern struct msi_page pages[];
 extern unsigned long g_pages_mapped;
@@ -58,9 +59,17 @@ void* bus_thread_handler(void* arg)
 			case DISCONNECT:
 				close(bus_args->fd);
 				return NULL;
+			case INVALID_STATE_READ:
+				printf("INVALID_STATE_READ_MSG_RECEIVED\n");
+				msi_handle_page_request(bus_args->fd, &msg);
+			break;
+			case INVALIDATE:
+				printf("INVALIDATE_RECEIVED\n");
+				msi_handle_page_invalidate(bus_args->fd, &msg);
 			break;
 			default:
-				printf("Unhandled bus request\n");
+				printf("Unhandled bus request, %d\n",
+				       msg.message_type);
 			break;
 		}
 	}

@@ -8,7 +8,7 @@ DEPS_DIR  := $(CUR_DIR)/.deps$(LIB_SUFFIX)
 DEPCFLAGS = -MD -MF $(DEPS_DIR)/$*.d -MP
 
 SRC_FILES = $(wildcard *.c)
-OBJ_FILES := bus_functions.o userfault_handler.o dsm_userspace.o
+OBJ_FILES := bus_functions.o userfault_handler.o dsm_userspace.o msi_statemachine.o
 
 EXE_FILES = $(SRC_FILES:.c=)
 
