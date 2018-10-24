@@ -17,6 +17,7 @@
 
 extern struct msi_page pages[];
 extern unsigned long g_pages_mapped;
+pthread_mutex_t bus_lock = PTHREAD_MUTEX_INITIALIZER;
 
 static void set_pages_in_use(unsigned long num)
 {
@@ -60,12 +61,23 @@ void* bus_thread_handler(void* arg)
 				close(bus_args->fd);
 				return NULL;
 			case INVALID_STATE_READ:
-				printf("INVALID_STATE_READ_MSG_RECEIVED\n");
+				//printf("INVALID_STATE_READ_MSG_RECEIVED\n");
 				msi_handle_page_request(bus_args->fd, &msg);
 			break;
 			case INVALIDATE:
-				printf("INVALIDATE_RECEIVED\n");
+				//printf("INVALIDATE_RECEIVED\n");
 				msi_handle_page_invalidate(bus_args->fd, &msg);
+			break;
+			case PAGE_REPLY:
+				//printf("PAGE_REPLY_RECEIVED\n");
+			//if (*(msg.payload.page_data) != (int)0){
+				//printf("payload page data: %s\n",
+			//	       msg.payload.page_data);
+			//}
+			msi_handle_page_reply(bus_args->fd, &msg);
+			break;
+			case INVALIDATE_ACK:
+				//printf("INVALIDATE_ACK_RECEIVED\n");
 			break;
 			default:
 				printf("Unhandled bus request, %d\n",

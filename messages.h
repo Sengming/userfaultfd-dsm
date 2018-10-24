@@ -30,12 +30,18 @@ struct request_page
 	uint64_t size;
 };
 
+struct invalidate_page
+{
+	uint64_t address;
+};
 /* Message payload and its structure */
 union message_payload
 {
 	struct memory_pair memory_pair;
 	struct command_ack command_ack;
 	struct request_page request_page;
+	struct invalidate_page invalidate_page;
+	char page_data[4096];
 };
 
 struct msi_message
@@ -44,11 +50,11 @@ struct msi_message
 	union message_payload payload;
 };
 
-struct msi_page_data_payload
-{
-	enum msi_message_type message_type;
-	char payload[4096];
-};
+//struct msi_page_data_payload
+//{
+//	enum msi_message_type message_type;
+//	char payload[4096];
+//};
 
 
 

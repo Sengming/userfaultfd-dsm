@@ -51,12 +51,15 @@ static void address_msi_pages(uint64_t mmap_addr, uint64_t phy_addr)
 	}
 }
 
-static void handle_write_command()
+static void handle_write_command(int sk)
 {
 	char cmd_buffer[INPUT_CMD_LEN] = {0};
 	char write_buffer[WRITE_BUF_LEN] = {0};
 	unsigned long page_num;
 	unsigned long iterator;
+	struct msi_message msg;
+	int write_ret;
+
 	printf("\nWhat page would you like to write to? (0 to N-1 or i): ");
 	if (!fgets(cmd_buffer, INPUT_CMD_LEN, stdin))
 		errExit("fgets error");
@@ -70,6 +73,14 @@ static void handle_write_command()
 		for (iterator = 0; iterator < g_pages_mapped; ++iterator) {
 			memcpy(pages[iterator].start_address,write_buffer,
 				strlen(write_buffer));
+			pages[iterator].tag = MODIFIED;
+			msg.message_type = INVALIDATE;
+			msg.payload.invalidate_page.address =
+				(uint64_t)pages[iterator].start_address;
+			write_ret = write(sk, &msg, sizeof(msg));
+			if (write_ret <= 0) {
+				errExit("Bad write");
+			}
 		}
 	}
 	else if (page_num < g_pages_mapped) {
@@ -77,6 +88,14 @@ static void handle_write_command()
 		//       pages[page_num].start_address);
 		memcpy(pages[page_num].start_address, write_buffer,
 		       strlen(write_buffer));
+		pages[page_num].tag = MODIFIED;
+		msg.message_type = INVALIDATE;
+		msg.payload.invalidate_page.address =
+			(uint64_t)pages[page_num].start_address;
+		write_ret = write(sk, &msg, sizeof(msg));
+		if (write_ret <= 0) {
+			errExit("Bad write");
+		}
 	}
 }
 
@@ -116,6 +135,30 @@ static void handle_read_command()
 		else {
 			printf("Read String: %s\n", probe);
 		}
+	}
+}
+
+static void handle_msi_status_command()
+{
+	char cmd_buffer[INPUT_CMD_LEN] = {0};
+	unsigned long page_num;
+	unsigned long iterator;
+	char *probe;
+
+	printf("\nWhat page would you like to view status of? (0 to N-1 or i): ");
+	if (!fgets(cmd_buffer, INPUT_CMD_LEN, stdin))
+		errExit("fgets error");
+
+	page_num = strtoul(cmd_buffer, NULL, 0);
+	if (!strncmp(cmd_buffer, "i", 1)){
+		for (iterator = 0; iterator < g_pages_mapped; ++iterator) {
+			printf("[*]Page %lu: %s \n", iterator,
+			       msi_strings[pages[iterator].tag]);
+		}
+	}
+	else if (page_num < g_pages_mapped) {
+		printf("[*]Page %lu: %s \n", page_num,
+			       msi_strings[pages[page_num].tag]);
 	}
 }
 
@@ -188,7 +231,7 @@ main(int argc, char *argv[])
 
 	/* Prompt User for Command */
 	for(;;) {
-		printf("\nWhat would you like to do? (r)ead/(w)rite/E(x)it?: ");
+		printf("\nWhat would you like to do? (r)ead/(w)rite/(v)iew msi/E(x)it?: ");
 		if (!fgets(fgets_buffer, INPUT_CMD_LEN, stdin))
 			errExit("fgets error");
 
@@ -202,10 +245,13 @@ main(int argc, char *argv[])
 			goto exit_success;
 		}
 		else if (!strncmp(fgets_buffer, "w", 1)){
-			handle_write_command();
+			handle_write_command(socket_fd);
 		}
 		else if (!strncmp(fgets_buffer, "r", 1)){
 			handle_read_command();
+		}
+		else if (!strncmp(fgets_buffer, "v", 1)){
+			handle_msi_status_command();
 		}
 	}
 

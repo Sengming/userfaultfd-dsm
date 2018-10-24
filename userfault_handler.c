@@ -63,7 +63,7 @@ fault_handler_thread(void *arg)
 		}
 
 //		printf("    UFFD_EVENT_PAGEFAULT event: ");
-		printf("flags = %llx; ", msg.arg.pagefault.flags);
+//		printf("flags = %llx; ", msg.arg.pagefault.flags);
 //		printf("address = %llx\n", msg.arg.pagefault.address);
 //		fault_cnt++;
 		msi_request_page(handler_arg->sk, page,

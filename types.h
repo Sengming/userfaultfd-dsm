@@ -13,7 +13,6 @@
 #define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE);	\
 	} while (0)
 
-
 enum msi_tag
 {
 	INVALID = 0,
@@ -21,6 +20,7 @@ enum msi_tag
 	SHARED,
 	NUM_TAGS
 };
+char* msi_strings[NUM_TAGS] = {"INVALID", "MODIFIED", "SHARED"};
 
 struct msi_page
 {
