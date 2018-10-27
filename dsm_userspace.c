@@ -25,6 +25,8 @@
 
 #define TOTAL_NUM_ARGS		(4)
 
+char* msi_strings[NUM_TAGS] = {"INVALID", "MODIFIED", "SHARED"};
+
 /* Global page array */
 struct msi_page pages[MAX_PAGES];
 unsigned long g_pages_mapped;

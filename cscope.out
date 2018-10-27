@@ -1,4 +1,4 @@
-cscope 15 $HOME/VT/LKP_5984/assignment3/dsm_userspace               0000205239
+cscope 15 $HOME/VT/LKP_5984/assignment3/dsm_userspace               0000209680
 	@bus_functions.c
 
 1 
@@ -57,33 +57,45 @@ cscope 15 $HOME/VT/LKP_5984/assignment3/dsm_userspace               0000205239
 	~"u£rÁu…_h™dÀr.h
 "
 
-17 
+16 
+	~"msi_°©emachöe.h
+"
+
+18 
 msi_∑ge
  
 ∑ges
 [];
 
-18 
+19 
 g_∑ges_m≠≥d
 ;
 
-20 
+20 
+±hªad_muãx_t
+ 
+	gbus_lock
+ = 
+PTHREAD_MUTEX_INITIALIZER
+;
+
+22 
 	$£t_∑ges_ö_u£
 (
 num
 )
 
-22 
+24 
 i
 ;
 
-23 
+25 
 i
  = 0; i < 
 num
 ; ++i)
 
-25 
+27 
 ∑ges
 [
 i
@@ -93,65 +105,65 @@ i
 åue
 ;
 
-27 
+29 
 g_∑ges_m≠≥d
  = 
 num
 ;
 
-28 
+30 
 	}
 }
 
-30 
+32 
 	$bus_thªad_˛ónup_h™dÀr
 (* 
 ¨g
 )
 
-33 
+35 
 sk
  = *(*)
 ¨g
 ;
 
-35 
+37 
 	`¥ötf
 ("CÀ™u∞h™dÀ∏ˇŒed: %d\n", 
 sk
 );
 
-36 i‡(
+38 i‡(
 sk
  >= 2)
 
-37 
+39 
 	`˛o£
 (
 sk
 );
 
-38 
+40 
 	}
 }
 
-40 * 
+42 * 
 	$bus_thªad_h™dÀr
 (* 
 ¨g
 )
 
-42 
+44 
 rd
 ;
 
-43 
+45 
 msi_mesßge
  
 msg
 ;
 
-44 
+46 
 bus_thªad_¨gs
 * 
 bus_¨gs
@@ -159,15 +171,15 @@ bus_¨gs
 ¨g
 ;
 
-46 i‡(!
+48 i‡(!
 bus_¨gs
 )
 
-47 
+49 
 	`îrExô
 ("Null Pointer");
 
-50 
+52 
 	`±hªad_˛ónup_push
 (
 bus_thªad_˛ónup_h™dÀr
@@ -177,7 +189,7 @@ bus_¨gs
 fd
 );
 
-54 
+56 
 rd
  = 
 	`ªad
@@ -189,25 +201,25 @@ fd
 msg
 , (msg));
 
-55 i‡(
+57 i‡(
 rd
  < 0)
 
-56 
+58 
 	`îrExô
 ("Read Error");
 
-57 
+59 
 msg
 .
 mesßge_ty≥
 ){
 
-58 
+60 
 DISCONNECT
 :
 
-59 
+61 
 	`˛o£
 (
 bus_¨gs
@@ -215,27 +227,79 @@ bus_¨gs
 fd
 );
 
-60  
+62  
 NULL
 ;
 
-63 
-	`¥ötf
-("Unhandled busÑequest\n");
+63 
+INVALID_STATE_READ
+:
 
-70 
+65 
+	`msi_h™dÀ_∑ge_ªque°
+(
+bus_¨gs
+->
+fd
+, &
+msg
+);
+
+67 
+INVALIDATE
+:
+
+69 
+	`msi_h™dÀ_∑ge_övÆid©e
+(
+bus_¨gs
+->
+fd
+, &
+msg
+);
+
+71 
+PAGE_REPLY
+:
+
+77 
+	`msi_h™dÀ_∑ge_ª∂y
+(
+bus_¨gs
+->
+fd
+, &
+msg
+);
+
+79 
+INVALIDATE_ACK
+:
+
+83 
+	`¥ötf
+("Unhandled busÑequest, %d\n",
+
+84 
+msg
+.
+mesßge_ty≥
+);
+
+91 
 	`±hªad_˛ónup_p›
 (0);
 
-71  
+92  
 NULL
 ;
 
-72 
+93 
 	}
 }
 
-74 
+95 
 	$£tup_£rvî
 (
 p‹t
@@ -247,59 +311,59 @@ bus_thªad_¨gs
 mm≠_¨gs
 *
 
-75 
+96 
 mm≠_ouçut
 )
 
-78 
+99 
 sk
 , 
 ªt
 ;
 
-79 
+100 
 ask
 ;
 
-80 
+101 
 Àn
 ;
 
-81 
+102 
 sockaddr_ö
  
 addr
 ;
 
-83 
+104 
 comm™d
 [
 INPUT_CMD_LEN
 ];
 
-84 
+105 
 ∑ge_size
 ;
 
-85 * 
+106 * 
 mm≠_±r
 ;
 
-86 
+107 
 wrôe_ªt
 ;
 
-87 
+108 
 num_∑ges
 ;
 
-89 
+110 
 msi_mesßge
  
 msg
 ;
 
-91 
+112 
 sk
  = 
 	`sockë
@@ -311,21 +375,21 @@ SOCK_STREAM
 IPPROTO_TCP
 );
 
-92 i‡(
+113 i‡(
 sk
  < 0) {
 
-93 
+114 
 	`îrExô
 ("Socket Creation");
 
-95 
+116 
 	`mem£t
 (&
 addr
 , 0, (addr));
 
-96 
+117 
 addr
 .
 sö_Ámûy
@@ -333,7 +397,7 @@ sö_Ámûy
 AF_INET
 ;
 
-97 
+118 
 addr
 .
 sö_addr
@@ -345,7 +409,7 @@ s_addr
 INADDR_ANY
 );
 
-98 
+119 
 addr
 .
 sö_p‹t
@@ -355,7 +419,7 @@ sö_p‹t
 p‹t
 );
 
-100 
+121 
 ªt
  = 
 	`böd
@@ -367,15 +431,15 @@ sockaddr
 addr
 , (addr));
 
-101 i‡(
+122 i‡(
 ªt
  < 0) {
 
-102 
+123 
 	`îrExô
 ("Server bind failed");
 
-105 
+126 
 ªt
  = 
 	`li°í
@@ -383,19 +447,19 @@ addr
 sk
 , 16);
 
-106 i‡(
+127 i‡(
 ªt
  < 0) {
 
-107 
+128 
 	`îrExô
 ("ServerÜisten failed");
 
-110 
+131 
 	`¥ötf
 ("Waiting for connections\n");
 
-112 
+133 
 ask
  = 
 	`ac˚±
@@ -405,23 +469,23 @@ sk
 NULL
 , NULL);
 
-113 i‡(
+134 i‡(
 ask
  < 0) {
 
-114 
+135 
 	`îrExô
 ("Serveráccept failed");
 
-116 
+137 
 	`¥ötf
 ("ConnectionÉstablished with client\n");
 
-119 
+140 
 	`¥ötf
 ("How manyÖagesÅo mmap?: ");
 
-120 i‡(!
+141 i‡(!
 	`fgës
 (
 comm™d
@@ -431,11 +495,11 @@ INPUT_CMD_LEN
 °dö
 )){
 
-121 
+142 
 	`îrExô
 ("fgetsÉrror");
 
-124 
+145 
 ∑ge_size
  = 
 	`sysc⁄f
@@ -443,7 +507,7 @@ INPUT_CMD_LEN
 _SC_PAGE_SIZE
 );
 
-125 
+146 
 num_∑ges
  = 
 	`°πoul
@@ -453,7 +517,7 @@ comm™d
 NULL
 , 0);
 
-126 
+147 
 Àn
  = 
 num_∑ges
@@ -461,15 +525,15 @@ num_∑ges
 ∑ge_size
 ;
 
-127 i‡(
+148 i‡(
 Àn
  < 0)
 
-128 
+149 
 	`îrExô
 ("strtoul_server_setup");
 
-130 
+151 
 mm≠_±r
  = 
 	`mm≠
@@ -483,39 +547,39 @@ PROT_READ
 PROT_WRITE
 ,
 
-131 
+152 
 MAP_PRIVATE
  | 
 MAP_ANONYMOUS
 , -1, 0);
 
-132 i‡(
+153 i‡(
 mm≠_±r
  =
 MAP_FAILED
 )
 
-133 
+154 
 	`îrExô
 ("mmap");
 
-135 
+156 
 	`¥ötf
 ("Local mmap: Addr: %p, Length: %d\n"
 
-136 ,
+157 ,
 mm≠_±r
 , 
 Àn
 );
 
-138 
+159 
 	`£t_∑ges_ö_u£
 (
 num_∑ges
 );
 
-141 
+162 
 msg
 .
 mesßge_ty≥
@@ -523,7 +587,7 @@ mesßge_ty≥
 CONNECTION_ESTABLISHED
 ;
 
-142 
+163 
 msg
 .
 ∑ylﬂd
@@ -537,7 +601,7 @@ uöt64_t
 mm≠_±r
 ;
 
-143 
+164 
 msg
 .
 ∑ylﬂd
@@ -549,7 +613,7 @@ size
 Àn
 ;
 
-144 
+165 
 wrôe_ªt
  = 
 	`wrôe
@@ -559,15 +623,15 @@ ask
 msg
  , (msg));
 
-145 i‡(
+166 i‡(
 wrôe_ªt
  <= 0) {
 
-146 
+167 
 	`îrExô
 ("Server initial writeÉrror");
 
-150 
+171 
 mm≠_ouçut
 ->
 mem‹y_addªss
@@ -575,7 +639,7 @@ mem‹y_addªss
 mm≠_±r
 ;
 
-151 
+172 
 mm≠_ouçut
 ->
 Àn
@@ -583,7 +647,7 @@ mm≠_ouçut
 uöt64_t
 )len;
 
-154 
+175 
 ¨g_ouçut
 ->
 fd
@@ -591,7 +655,7 @@ fd
 ask
 ;
 
-155 
+176 
 ¨g_ouçut
 ->
 mem‹y_addªss
@@ -601,27 +665,27 @@ uöt64_t
 mm≠_±r
 ;
 
-156 
+177 
 ¨g_ouçut
 ->
 Àn
  =Üen;
 
-159 
+180 
 	`˛o£
 (
 sk
 );
 
-161  
+182  
 ask
 ;
 
-162 
+183 
 	}
 }
 
-164 
+185 
 	$åy_c⁄√˘_˛õ¡
 (
 p‹t
@@ -629,7 +693,7 @@ p‹t
 ù_°rög
 , 
 
-165 
+186 
 bus_thªad_¨gs
 * 
 ¨g_ouçut
@@ -637,35 +701,35 @@ bus_thªad_¨gs
 mm≠_¨gs
 *
 
-166 
+187 
 mm≠_ouçut
 )
 
-168 
+189 
 sk
  = 0;
 
-169 
+190 
 îr
  = 0;
 
-170 
+191 
 sockaddr_ö
  
 addr
 ;
 
-171 
+192 
 rd
 ;
 
-172 
+193 
 msi_mesßge
  
 msg
 ;
 
-174 
+195 
 sk
  = 
 	`sockë
@@ -677,15 +741,15 @@ SOCK_STREAM
 IPPROTO_TCP
 );
 
-175 i‡(
+196 i‡(
 sk
  < 0) {
 
-176 
+197 
 out_sockë_îr
 ;
 
-179 
+200 
 	`¥ötf
 ("C⁄√˘ögÅÿ%s:%d\n", 
 ù_°rög
@@ -693,13 +757,13 @@ out_sockë_îr
 p‹t
 );
 
-180 
+201 
 	`mem£t
 (&
 addr
 , 0, (addr));
 
-181 
+202 
 addr
 .
 sö_Ámûy
@@ -707,7 +771,7 @@ sö_Ámûy
 AF_INET
 ;
 
-182 
+203 
 îr
  = 
 	`öë_©⁄
@@ -719,15 +783,15 @@ addr
 sö_addr
 );
 
-183 i‡(
+204 i‡(
 îr
  < 0) {
 
-184 
+205 
 out_˛o£_sockë
 ;
 
-187 
+208 
 addr
 .
 sö_p‹t
@@ -737,7 +801,7 @@ sö_p‹t
 p‹t
 );
 
-189 
+210 
 îr
  = 
 	`c⁄√˘
@@ -749,19 +813,19 @@ sockaddr
 addr
 , (addr));
 
-190 i‡(
+211 i‡(
 îr
  < 0) {
 
-191 
+212 
 out_˛o£_sockë
 ;
 
-195 
+216 
 	`¥ötf
 ("AwaitingÖairingÑequest\n");
 
-196 
+217 
 rd
  = 
 	`ªad
@@ -771,15 +835,15 @@ sk
 msg
 , (msg));
 
-197 i‡(
+218 i‡(
 rd
  < 0)
 
-198 
+219 
 	`îrExô
 ("Read Error");
 
-199 i‡(
+220 i‡(
 msg
 .
 mesßge_ty≥
@@ -787,11 +851,11 @@ mesßge_ty≥
 CONNECTION_ESTABLISHED
 ) {
 
-200 
+221 
 	`¥ötf
 ("Pairing Request Received: Addr: 0x%lx, Length: %lu\n"
 
-201 ,
+222 ,
 msg
 .
 ∑ylﬂd
@@ -801,7 +865,7 @@ mem‹y_∑ú
 addªss
 ,
 
-202 
+223 
 msg
 .
 ∑ylﬂd
@@ -811,7 +875,7 @@ mem‹y_∑ú
 size
 );
 
-204 
+225 
 	`£t_∑ges_ö_u£
 (
 msg
@@ -827,7 +891,7 @@ size
 _SC_PAGE_SIZE
 ));
 
-206 
+227 
 mm≠_ouçut
 ->
 mem‹y_addªss
@@ -841,7 +905,7 @@ mem‹y_∑ú
 addªss
 ;
 
-207 
+228 
 mm≠_ouçut
 ->
 Àn
@@ -855,7 +919,7 @@ mem‹y_∑ú
 size
 ;
 
-209 
+230 
 ¨g_ouçut
 ->
 fd
@@ -863,25 +927,25 @@ fd
 sk
 ;
 
-211  
+232  
 sk
 ;
 
-213 
+234 
 out_˛o£_sockë
 :
 
-214 
+235 
 	`˛o£
 (
 sk
 );
 
-215 
+236 
 out_sockë_îr
 :
 
-217 
+238 
 	}
 }
 
@@ -1061,7 +1125,13 @@ bus_thªad_h™dÀr
 
 	)
 
-29 
+28 * 
+	gmsi_°rögs
+[
+NUM_TAGS
+] = {"INVALID", "MODIFIED", "SHARED"};
+
+31 
 msi_∑ge
  
 	g∑ges
@@ -1069,25 +1139,25 @@ msi_∑ge
 MAX_PAGES
 ];
 
-30 
+32 
 	gg_∑ges_m≠≥d
 ;
 
-32 
+34 
 	$öôülize_msi_∑ges
 ()
 
-34 
+36 
 i
 ;
 
-35 
+37 
 i
  = 0; i < 
 MAX_PAGES
 ; ++i){
 
-36 
+38 
 ∑ges
 [
 i
@@ -1097,7 +1167,7 @@ i
 INVALID
 ;
 
-37 
+39 
 	`±hªad_muãx_öô
 (&
 ∑ges
@@ -1109,7 +1179,7 @@ muãx
 NULL
 );
 
-38 
+40 
 ∑ges
 [
 i
@@ -1119,7 +1189,7 @@ i
 Ál£
 ;
 
-39 
+41 
 ∑ges
 [
 i
@@ -1129,23 +1199,25 @@ i
 NULL
 ;
 
-41 
+43 
 	}
 }
 
-43 
+45 
 	$addªss_msi_∑ges
 (
 uöt64_t
  
 mm≠_addr
+, uöt64_à
+phy_addr
 )
 
-45 
+47 
 i
 ;
 
-46 
+48 
 uöt64_t
  
 ∑ge_addr
@@ -1153,7 +1225,7 @@ uöt64_t
 mm≠_addr
 ;
 
-47 
+49 
 ∑ge_size
  = 
 	`sysc⁄f
@@ -1161,7 +1233,7 @@ mm≠_addr
 _SC_PAGE_SIZE
 );
 
-48 
+50 
 i
  = 0; i < 
 MAX_PAGES
@@ -1169,9 +1241,11 @@ MAX_PAGES
 ∑ge_addr
 +=
 ∑ge_size
-){
+, 
+phy_addr
++=page_size){
 
-49 
+51 
 ∑ges
 [
 i
@@ -1181,39 +1255,61 @@ i
 ∑ge_addr
 ;
 
-51 
+52 
+∑ges
+[
+i
+].
+physiˇl_addªss
+ = (*)
+phy_addr
+;
+
+54 
 	}
 }
 
-53 
+56 
 	$h™dÀ_wrôe_comm™d
-()
+(
+sk
+)
 
-55 
+58 
 cmd_buf„r
 [
 INPUT_CMD_LEN
 ] = {0};
 
-56 
+59 
 wrôe_buf„r
 [
 WRITE_BUF_LEN
 ] = {0};
 
-57 
+60 
 ∑ge_num
 ;
 
-58 
+61 
 ôî©‹
 ;
 
-59 
+62 
+msi_mesßge
+ 
+msg
+;
+
+63 
+wrôe_ªt
+;
+
+65 
 	`¥ötf
 ("\nWhatÖage would youÜikeÅo writeÅo? (0Åo N-1 or i): ");
 
-60 i‡(!
+66 i‡(!
 	`fgës
 (
 cmd_buf„r
@@ -1223,15 +1319,15 @@ INPUT_CMD_LEN
 °dö
 ))
 
-61 
+67 
 	`îrExô
 ("fgetsÉrror");
 
-63 
+69 
 	`¥ötf
 ("\nWhat would youÜikeÅo write?:\n");
 
-64 i‡(!
+70 i‡(!
 	`fgës
 (
 wrôe_buf„r
@@ -1241,11 +1337,11 @@ WRITE_BUF_LEN
 °dö
 ))
 
-65 
+71 
 	`îrExô
 ("fgetsÉrror");
 
-67 
+73 
 ∑ge_num
  = 
 	`°πoul
@@ -1255,19 +1351,19 @@ cmd_buf„r
 NULL
 , 0);
 
-68 i‡(!
+74 i‡(!
 	`°∫cmp
 (
 cmd_buf„r
 , "i", 1)){
 
-69 
+75 
 ôî©‹
  = 0; iãøt‹ < 
 g_∑ges_m≠≥d
 ; ++iterator) {
 
-70 
+76 
 	`mem˝y
 (
 ∑ges
@@ -1279,19 +1375,75 @@ g_∑ges_m≠≥d
 wrôe_buf„r
 ,
 
-71 
+77 
 	`°æí
 (
 wrôe_buf„r
 ));
 
-74 i‡(
+78 
+∑ges
+[
+ôî©‹
+].
+èg
+ = 
+MODIFIED
+;
+
+79 
+msg
+.
+mesßge_ty≥
+ = 
+INVALIDATE
+;
+
+80 
+msg
+.
+∑ylﬂd
+.
+övÆid©e_∑ge
+.
+addªss
+ =
+
+81 (
+uöt64_t
+)
+∑ges
+[
+ôî©‹
+].
+°¨t_addªss
+;
+
+82 
+wrôe_ªt
+ = 
+	`wrôe
+(
+sk
+, &
+msg
+, (msg));
+
+83 i‡(
+wrôe_ªt
+ <= 0) {
+
+84 
+	`îrExô
+("Bad write");
+
+88 i‡(
 ∑ge_num
  < 
 g_∑ges_m≠≥d
 ) {
 
-77 
+91 
 	`mem˝y
 (
 ∑ges
@@ -1303,43 +1455,99 @@ g_∑ges_m≠≥d
 wrôe_buf„r
 ,
 
-78 
+92 
 	`°æí
 (
 wrôe_buf„r
 ));
 
-80 
+93 
+∑ges
+[
+∑ge_num
+].
+èg
+ = 
+MODIFIED
+;
+
+94 
+msg
+.
+mesßge_ty≥
+ = 
+INVALIDATE
+;
+
+95 
+msg
+.
+∑ylﬂd
+.
+övÆid©e_∑ge
+.
+addªss
+ =
+
+96 (
+uöt64_t
+)
+∑ges
+[
+∑ge_num
+].
+°¨t_addªss
+;
+
+97 
+wrôe_ªt
+ = 
+	`wrôe
+(
+sk
+, &
+msg
+, (msg));
+
+98 i‡(
+wrôe_ªt
+ <= 0) {
+
+99 
+	`îrExô
+("Bad write");
+
+102 
 	}
 }
 
-82 
+104 
 	$h™dÀ_ªad_comm™d
 ()
 
-84 
+106 
 cmd_buf„r
 [
 INPUT_CMD_LEN
 ] = {0};
 
-85 
+107 
 ∑ge_num
 ;
 
-86 
+108 
 ôî©‹
 ;
 
-87 *
+109 *
 ¥obe
 ;
 
-89 
+111 
 	`¥ötf
 ("\nWhatÖage would youÜikeÅoÑead from? (0Åo N-1 or i): ");
 
-90 i‡(!
+112 i‡(!
 	`fgës
 (
 cmd_buf„r
@@ -1349,11 +1557,11 @@ INPUT_CMD_LEN
 °dö
 ))
 
-91 
+113 
 	`îrExô
 ("fgetsÉrror");
 
-93 
+115 
 ∑ge_num
  = 
 	`°πoul
@@ -1363,19 +1571,19 @@ cmd_buf„r
 NULL
 , 0);
 
-94 i‡(!
+116 i‡(!
 	`°∫cmp
 (
 cmd_buf„r
 , "i", 1)){
 
-95 
+117 
 ôî©‹
  = 0; iãøt‹ < 
 g_∑ges_m≠≥d
 ; ++iterator) {
 
-96 
+118 
 ¥obe
  = (*)
 ∑ges
@@ -1385,23 +1593,23 @@ g_∑ges_m≠≥d
 °¨t_addªss
 ;
 
-97 
+119 
 c
  = *
 ¥obe
 ;
 
-98 i‡(*
+120 i‡(*
 ¥obe
  == ()0){
 
-100 
+122 
 	`¥ötf
 ("[*]Pagê%lu:\n\n", 
 ôî©‹
 );
 
-104 
+126 
 	`¥ötf
 ("[*]Pagê%lu:\n%s\n", 
 ôî©‹
@@ -1409,13 +1617,13 @@ c
 ¥obe
 );
 
-109 i‡(
+131 i‡(
 ∑ge_num
  < 
 g_∑ges_m≠≥d
 ) {
 
-110 
+132 
 ¥obe
  = (*)
 ∑ges
@@ -1425,31 +1633,135 @@ g_∑ges_m≠≥d
 °¨t_addªss
 ;
 
-111 
+133 
 c
  = *
 ¥obe
 ;
 
-112 i‡(*
+134 i‡(*
 ¥obe
  == ()0){
 
-113 
+135 
 	`¥ötf
 ("Read String: \n");
 
-116 
+138 
 	`¥ötf
 ("Ród Såög: %s\n", 
 ¥obe
 );
 
-119 
+141 
 	}
 }
 
-122 
+143 
+	$h™dÀ_msi_°©us_comm™d
+()
+
+145 
+cmd_buf„r
+[
+INPUT_CMD_LEN
+] = {0};
+
+146 
+∑ge_num
+;
+
+147 
+ôî©‹
+;
+
+148 *
+¥obe
+;
+
+150 
+	`¥ötf
+("\nWhatÖage would youÜikeÅo view status of? (0Åo N-1 or i): ");
+
+151 i‡(!
+	`fgës
+(
+cmd_buf„r
+, 
+INPUT_CMD_LEN
+, 
+°dö
+))
+
+152 
+	`îrExô
+("fgetsÉrror");
+
+154 
+∑ge_num
+ = 
+	`°πoul
+(
+cmd_buf„r
+, 
+NULL
+, 0);
+
+155 i‡(!
+	`°∫cmp
+(
+cmd_buf„r
+, "i", 1)){
+
+156 
+ôî©‹
+ = 0; iãøt‹ < 
+g_∑ges_m≠≥d
+; ++iterator) {
+
+157 
+	`¥ötf
+("[*]Pagê%lu: %†\n", 
+ôî©‹
+,
+
+158 
+msi_°rögs
+[
+∑ges
+[
+ôî©‹
+].
+èg
+]);
+
+161 i‡(
+∑ge_num
+ < 
+g_∑ges_m≠≥d
+) {
+
+162 
+	`¥ötf
+("[*]Pagê%lu: %†\n", 
+∑ge_num
+,
+
+163 
+msi_°rögs
+[
+∑ges
+[
+∑ge_num
+].
+èg
+]);
+
+165 
+	}
+}
+
+168 
 	$maö
 (
 ¨gc
@@ -1457,79 +1769,83 @@ c
 ¨gv
 [])
 
-124 
+170 
 sockë_fd
 ;
 
-125 
+171 
 fgës_buf„r
 [100];
 
-128 
+174 
 bus_thªad_¨gs
  
 bus_¨gs
 ;
 
-129 
+175 
 ±hªad_t
  
 bus_thªad
 ;
 
-130 
+176 
 bus_thªad_ªt
 ;
 
-133 
+179 
 mm≠_¨gs
  
 sh¨ed_m≠pög
 ;
 
-134 
+180 
 ±hªad_t
  
 u£rÁu…fd_thªad
 ;
 
-136 
+181 * 
+physiˇl_addªss
+;
+
+182 
 exô_wrôe_ªt
 ;
 
-139 
+185 
 msi_mesßge
  
 msg
 ;
 
-141 i‡(
+187 i‡(
 ¨gc
  !
 TOTAL_NUM_ARGS
 ) {
 
-142 
+188 
 	`Ârötf
 (
 °dîr
 , "Usage: %s my_portÑemote_ipÑemote_port\n",
 
-143 
+189 
 ¨gv
 [0]);
 
-144 
+190 
 	`exô
 (
 EXIT_FAILURE
 );
 
-147 
+193 
 	`öôülize_msi_∑ges
 ();
 
-151 
+197 
 sockë_fd
  = 
 	`åy_c⁄√˘_˛õ¡
@@ -1541,15 +1857,15 @@ sockë_fd
 bus_¨gs
 ,
 
-152 &
+198 &
 sh¨ed_m≠pög
 );
 
-154 i‡(
+200 i‡(
 sockë_fd
  > 0){
 
-156 
+202 
 	`mm≠
 (
 sh¨ed_m≠pög
@@ -1559,7 +1875,7 @@ mem‹y_addªss
 Àn
 ,
 
-157 
+203 
 PROT_READ
  | 
 PROT_WRITE
@@ -1569,11 +1885,11 @@ MAP_PRIVATE
 MAP_ANONYMOUS
  |
 
-158 
+204 
 MAP_FIXED
 , -1, 0);
 
-160 
+206 
 bus_thªad_ªt
  = 
 	`±hªad_¸óã
@@ -1583,29 +1899,29 @@ bus_thªad
 NULL
 ,
 
-161 
+207 
 bus_thªad_h™dÀr
 ,
 
-162 (*Ë&
+208 (*Ë&
 bus_¨gs
 );
 
-163 i‡(
+209 i‡(
 bus_thªad_ªt
  != 0) {
 
-164 
+210 
 î∫o
  = 
 bus_thªad_ªt
 ;
 
-165 
+211 
 	`îrExô
 ("pthread_create");
 
-169 
+215 
 sockë_fd
  = 
 	`£tup_£rvî
@@ -1617,11 +1933,11 @@ sockë_fd
 bus_¨gs
 ,
 
-170 &
+216 &
 sh¨ed_m≠pög
 );
 
-171 
+217 
 bus_thªad_ªt
  = 
 	`±hªad_¸óã
@@ -1631,29 +1947,29 @@ bus_thªad
 NULL
 ,
 
-172 
+218 
 bus_thªad_h™dÀr
 ,
 
-173 (*Ë&
+219 (*Ë&
 bus_¨gs
 );
 
-174 i‡(
+220 i‡(
 bus_thªad_ªt
  != 0) {
 
-175 
+221 
 î∫o
  = 
 bus_thªad_ªt
 ;
 
-176 
+222 
 	`îrExô
 ("pthread_create");
 
-180 
+226 
 	`£tup_u£rÁu…fd_ªgi⁄
 (
 sh¨ed_m≠pög
@@ -1661,7 +1977,11 @@ sh¨ed_m≠pög
 mem‹y_addªss
 ,
 
-181 
+227 &
+physiˇl_addªss
+,
+
+228 
 sh¨ed_m≠pög
 .
 Àn
@@ -1669,13 +1989,13 @@ sh¨ed_m≠pög
 u£rÁu…fd_thªad
 ,
 
-182 &
+229 &
 Áu…_h™dÀr_thªad
 , 
 sockë_fd
 );
 
-184 
+231 
 	`addªss_msi_∑ges
 ((
 uöt64_t
@@ -1683,13 +2003,19 @@ uöt64_t
 sh¨ed_m≠pög
 .
 mem‹y_addªss
+,
+
+232 (
+uöt64_t
+)
+physiˇl_addªss
 );
 
-188 
+236 
 	`¥ötf
-("\nWhat would youÜikeÅo do? (r)ead/(w)rite/E(x)it?: ");
+("\nWhat would youÜikeÅo do? (r)ead/(w)rite/(v)iew msi/E(x)it?: ");
 
-189 i‡(!
+237 i‡(!
 	`fgës
 (
 fgës_buf„r
@@ -1699,23 +2025,23 @@ INPUT_CMD_LEN
 °dö
 ))
 
-190 
+238 
 	`îrExô
 ("fgetsÉrror");
 
-192 i‡(!
+240 i‡(!
 	`°∫cmp
 (
 fgës_buf„r
 , "x", 1)){
 
-193 
+241 
 	`±hªad_ˇn˚l
 (
 bus_thªad
 );
 
-194 
+242 
 msg
 .
 mesßge_ty≥
@@ -1723,7 +2049,7 @@ mesßge_ty≥
 DISCONNECT
 ;
 
-195 
+243 
 exô_wrôe_ªt
  = 
 	`wrôe
@@ -1733,53 +2059,65 @@ sockë_fd
 msg
 , (msg));
 
-196 i‡(
+244 i‡(
 exô_wrôe_ªt
  <= 0) {
 
-197 
+245 
 	`îrExô
 ("Exit Write Error");
 
-199 
+247 
 exô_suc˚ss
 ;
 
-201 i‡(!
+249 i‡(!
 	`°∫cmp
 (
 fgës_buf„r
 , "w", 1)){
 
-202 
+250 
 	`h™dÀ_wrôe_comm™d
-();
+(
+sockë_fd
+);
 
-204 i‡(!
+252 i‡(!
 	`°∫cmp
 (
 fgës_buf„r
 , "r", 1)){
 
-205 
+253 
 	`h™dÀ_ªad_comm™d
 ();
 
-209 
+255 i‡(!
+	`°∫cmp
+(
+fgës_buf„r
+, "v", 1)){
+
+256 
+	`h™dÀ_msi_°©us_comm™d
+();
+
+260 
 exô_suc˚ss
 :
 
-210 
+261 
 	`¥ötf
 ("EXITING");
 
-211 
+262 
 	`exô
 (
 EXIT_SUCCESS
 );
 
-212 
+263 
 	}
 }
 
@@ -1820,100 +2158,114 @@ __MESSAGES_H__
 ,
 
 11 
+	mINVALIDATE
+,
+
+12 
+	mINVALIDATE_ACK
+,
+
+13 
 	mTOTAL_MESSAGES
 
 
-14 
+16 
 	smem‹y_∑ú
 
 
-16 
+18 
 uöt64_t
  
 	maddªss
 ;
 
-17 
+19 
 uöt64_t
  
 	msize
 ;
 
-20 
+22 
 	scomm™d_ack
 
 
-22 
+24 
 	mîr
 ;
 
-25 
+27 
 	sªque°_∑ge
 
 
-27 
+29 
 uöt64_t
  
 	maddªss
 ;
 
-28 
+30 
 uöt64_t
  
 	msize
 ;
 
-32 
+33 
+	sövÆid©e_∑ge
+
+
+35 
+uöt64_t
+ 
+	maddªss
+;
+
+38 
 	umesßge_∑ylﬂd
 
 
-34 
+40 
 mem‹y_∑ú
  
 	mmem‹y_∑ú
 ;
 
-35 
+41 
 comm™d_ack
  
 	mcomm™d_ack
 ;
 
-36 
+42 
 ªque°_∑ge
  
 	mªque°_∑ge
 ;
 
-39 
+43 
+övÆid©e_∑ge
+ 
+	mövÆid©e_∑ge
+;
+
+44 
+	m∑ge_d©a
+[4096];
+
+47 
 	smsi_mesßge
 
 
-41 
+49 
 msi_mesßge_ty≥
  
 	mmesßge_ty≥
 ;
 
-42 
+50 
 mesßge_∑ylﬂd
  
 	m∑ylﬂd
 ;
-
-45 
-	smsi_∑ge_d©a_∑ylﬂd
-
-
-47 
-msi_mesßge_ty≥
- 
-	mmesßge_ty≥
-;
-
-48 
-	m∑ylﬂd
-[4096];
 
 	@msi_statemachine.c
 
@@ -1961,17 +2313,43 @@ msi_mesßge_ty≥
 	~<°rög.h
 >
 
-13 
+12 
+	~<±hªad.h
+>
+
+14 
 msi_∑ge
  
 ∑ges
 [];
 
-14 
+15 
 g_∑ges_m≠≥d
 ;
 
-16 
+16 
+±hªad_muãx_t
+ 
+bus_lock
+;
+
+18 
+	gwaôög_f‹_∑ge_ª∂y
+ = 0;
+
+19 
+±hªad_c⁄d_t
+ 
+	g∑ge_ª∂y_c⁄d
+ = 
+PTHREAD_COND_INITIALIZER
+;
+
+20 
+	gglobÆ_d©a_buf„r
+[4096];
+
+22 
 msi_∑ge
 * 
 	$föd_msi_∑ge
@@ -1979,7 +2357,7 @@ msi_∑ge
 Áu…_addr
 )
 
-18 
+24 
 msi_∑ge
 * 
 ∑ge
@@ -1987,7 +2365,7 @@ msi_∑ge
 NULL
 ;
 
-19 
+25 
 uöt64_t
  
 addr_vÆ
@@ -1995,17 +2373,17 @@ addr_vÆ
 Áu…_addr
 ;
 
-20 
+26 
 ôî©‹
  = 0;
 
-22 
+28 
 ôî©‹
  = 0; iãøt‹ < 
 g_∑ges_m≠≥d
 ; ++iterator){
 
-23 i‡((
+29 i‡((
 uöt64_t
 )
 ∑ges
@@ -2019,11 +2397,11 @@ uöt64_t
 _SC_PAGE_SIZE
 )
 
-24 > 
+30 > 
 addr_vÆ
 ){
 
-25 
+31 
 ∑ge
  = &
 ∑ges
@@ -2031,15 +2409,15 @@ addr_vÆ
 ôî©‹
 ];
 
-30  
+36  
 ∑ge
 ;
 
-31 
+37 
 	}
 }
 
-33 
+39 
 	$msi_ªque°_∑ge
 (
 sk
@@ -2047,19 +2425,35 @@ sk
 ∑ge
 , * 
 Áu…_addr
+, 
+rw
 )
 
-35 
+41 
 wrôe_ªt
+, 
+ªad_ªt
 ;
 
-36 
+42 
 msi_mesßge
  
 msg
 ;
 
-37 
+43 
+msi_mesßge
+ 
+msg_ö
+;
+
+44 
+	`±hªad_muãx_lock
+(&
+bus_lock
+);
+
+45 
 msi_∑ge
 * 
 ∑ge_to_å™sôi⁄
@@ -2069,29 +2463,33 @@ msi_∑ge
 Áu…_addr
 );
 
-38 i‡(!
+46 i‡(!
 ∑ge_to_å™sôi⁄
 ){
 
-39 
+47 
 	`îrExô
 ("UnableÅo findÖage\n");
 
-41 
-	`¥ötf
-("msòèg: %u, %p\n", 
+54 
 ∑ge_to_å™sôi⁄
 ->
 èg
-,
+){
 
-42 
-∑ge_to_å™sôi⁄
-->
-°¨t_addªss
-);
+55 
+SHARED
+:
 
-47 
+81 
+MODIFIED
+:
+
+85 
+INVALID
+:
+
+88 
 msg
 .
 mesßge_ty≥
@@ -2099,7 +2497,7 @@ mesßge_ty≥
 INVALID_STATE_READ
 ;
 
-48 
+89 
 msg
 .
 ∑ylﬂd
@@ -2113,7 +2511,7 @@ uöt64_t
 Áu…_addr
 ;
 
-49 
+90 
 msg
 .
 ∑ylﬂd
@@ -2127,7 +2525,7 @@ size
 _SC_PAGE_SIZE
 );
 
-50 
+91 
 wrôe_ªt
  = 
 	`wrôe
@@ -2137,27 +2535,83 @@ sk
 msg
  , (msg));
 
-51 i‡(
+92 i‡(
 wrôe_ªt
  <= 0) {
 
-52 
-	`îrExô
-("msi_i_to_sÉrror");
+93 
+out_bad
+;
 
-55 
-ªad_ªt
- = 
-	`ªad
-(
-sk
+99 
+	`mem£t
+(&
+globÆ_d©a_buf„r
+, 0, 4096);
+
+100 
+waôög_f‹_∑ge_ª∂y
+ = 1;
+
+101 
+waôög_f‹_∑ge_ª∂y
+ == 1)
+
+102 
+	`±hªad_c⁄d_waô
+(&
+∑ge_ª∂y_c⁄d
+, &
+bus_lock
 );
 
-57 
+106 
+	`mem˝y
+(
+∑ge
+, &
+globÆ_d©a_buf„r
+, 
+	`sysc⁄f
+(
+_SC_PAGE_SIZE
+));
+
+110 
+∑ge_to_å™sôi⁄
+->
+èg
+ = 
+SHARED
+;
+
+129 
+out_good
+;
+
+136 
+out_good
+:
+
+137 
+	`±hªad_muãx_u∆ock
+(&
+bus_lock
+);
+
+140 
+out_bad
+:
+
+142 
+	`îrExô
+("request_page_failed");
+
+143 
 	}
 }
 
-59 
+145 
 	$msi_h™dÀ_∑ge_ªque°
 (
 sk
@@ -2167,75 +2621,305 @@ msi_mesßge
 ö_msg
 )
 
-61 
+147 
 wrôe_ªt
 ;
 
-62 
-msi_∑ge_d©a_∑ylﬂd
- * 
+148 
+msi_mesßge
+ 
 msg_out
- = (
+;
 
-63 
-msi_∑ge_d©a_∑ylﬂd
-*)
-	`mÆloc
-((msi_page_data_payload));
+151 
+msi_∑ge
+* 
+∑ge_to_å™sôi⁄
+ =
 
-64 
-msg_out
+152 
+	`föd_msi_∑ge
+((*)
+ö_msg
 ->
+∑ylﬂd
+.
+ªque°_∑ge
+.
+addªss
+);
+
+153 i‡(!
+∑ge_to_å™sôi⁄
+){
+
+154 
+	`îrExô
+("UnableÅo findÖage\n");
+
+156 
+msg_out
+.
 mesßge_ty≥
  = 
 PAGE_REPLY
 ;
 
-65 
-	`mem˝y
+159 i‡(
+∑ge_to_å™sôi⁄
+->
+èg
+ =
+INVALID
+) {
+
+160 
+	`mem£t
 (
 msg_out
-->
-∑ylﬂd
-, (*)
-ö_msg
-->∑ylﬂd.
-ªque°_∑ge
 .
-addªss
-,
-
-66 
+∑ylﬂd
+.
+∑ge_d©a
+, 0, 
 	`sysc⁄f
 (
 _SC_PAGE_SIZE
 ));
 
-67 
+165 
+	`mem˝y
+(
+msg_out
+.
+∑ylﬂd
+.
+∑ge_d©a
+, 
+∑ge_to_å™sôi⁄
+->
+°¨t_addªss
+,
+
+166 
+	`sysc⁄f
+(
+_SC_PAGE_SIZE
+));
+
+169 
 wrôe_ªt
  = 
 	`wrôe
 (
 sk
-, 
+, &
 msg_out
-, (*msg_out));
+, (msg_out));
 
-68 i‡(
+170 i‡(
 wrôe_ªt
  <= 0) {
 
-69 
-	`îrExô
-("msi_i_to_sÉrror");
+171 
+out_bad
+;
 
-71 
-	`‰ì
-(
-msg_out
+175 
+∑ge_to_å™sôi⁄
+->
+èg
+ = 
+SHARED
+;
+
+176 
+out_good
+;
+
+177 
+out_bad
+:
+
+179 
+	`îrExô
+("handle_page_request_error");
+
+180 
+out_good
+:
+
+183 
+	}
+}
+
+185 
+	$msi_h™dÀ_∑ge_övÆid©e
+ (
+sk
+, 
+msi_mesßge
+* 
+ö_msg
+)
+
+187 
+wrôe_ªt
+;
+
+188 
+msi_mesßge
+ 
+msg
+;
+
+191 
+msi_∑ge
+* 
+∑ge_to_å™sôi⁄
+ =
+
+192 
+	`föd_msi_∑ge
+((*)
+ö_msg
+->
+∑ylﬂd
+.
+övÆid©e_∑ge
+.
+addªss
 );
 
-72 
+193 i‡(!
+∑ge_to_å™sôi⁄
+){
+
+194 
+	`îrExô
+("UnableÅo findÖage\n");
+
+198 
+∑ge_to_å™sôi⁄
+->
+èg
+ = 
+INVALID
+;
+
+199 i‡(
+	`madvi£
+(
+∑ge_to_å™sôi⁄
+->
+°¨t_addªss
+, 
+	`sysc⁄f
+(
+_SC_PAGE_SIZE
+), 
+MADV_DONTNEED
+)) {
+
+200 
+	`îrExô
+("failÅo madvise");
+
+204 
+msg
+.
+mesßge_ty≥
+ = 
+INVALIDATE_ACK
+;
+
+206 
+wrôe_ªt
+ = 
+	`wrôe
+(
+sk
+, &
+msg
+, (msg));
+
+207 i‡(
+wrôe_ªt
+ <= 0) {
+
+208 
+	`îrExô
+("page_invalidate_failed");
+
+211 
+	}
+}
+
+213 
+	$msi_h™dÀ_∑ge_ª∂y
+(
+sk
+, 
+msi_mesßge
+* 
+ö_msg
+)
+
+215 
+	`±hªad_muãx_lock
+(&
+bus_lock
+);
+
+216 
+	`mem˝y
+(&
+globÆ_d©a_buf„r
+, 
+ö_msg
+->
+∑ylﬂd
+.
+∑ge_d©a
+,
+
+217 
+	`sysc⁄f
+(
+_SC_PAGE_SIZE
+));
+
+218 
+waôög_f‹_∑ge_ª∂y
+ = 0;
+
+220 
+	`±hªad_c⁄d_sig«l
+(&
+∑ge_ª∂y_c⁄d
+);
+
+221 
+	`±hªad_muãx_u∆ock
+(&
+bus_lock
+);
+
+222 
+	}
+}
+
+224 
+	$msi_h™dÀ_övÆid©e_ack
+(
+sk
+, 
+msi_mesßge
+* 
+ö_msg
+)
+
+227 
 	}
 }
 
@@ -2251,7 +2935,11 @@ __MSI_STATEMACHINE_H__
 
 	)
 
-4 
+3 
+	~"mesßges.h
+"
+
+5 
 msi_ªque°_∑ge
 (
 sk
@@ -2259,6 +2947,46 @@ sk
 ∑ge
 , * 
 Áu…_addr
+, 
+rw
+);
+
+6 
+msi_h™dÀ_∑ge_ªque°
+(
+sk
+, 
+msi_mesßge
+* 
+ö_msg
+);
+
+7 
+msi_h™dÀ_∑ge_övÆid©e
+ (
+sk
+, 
+msi_mesßge
+* 
+ö_msg
+);
+
+8 
+msi_∑ge
+* 
+föd_msi_∑ge
+(* 
+Áu…_addr
+);
+
+10 
+msi_h™dÀ_∑ge_ª∂y
+(
+sk
+, 
+msi_mesßge
+* 
+ö_msg
 );
 
 	@types.h
@@ -2325,44 +3053,48 @@ EXIT_FAILURE
 
 	)
 
-17 
+16 
 	emsi_èg
 
 
-19 
+18 
 	mINVALID
  = 0,
 
-20 
+19 
 	mMODIFIED
 ,
 
-21 
+20 
 	mSHARED
 ,
 
-22 
+21 
 	mNUM_TAGS
 
 
-25 
+24 
 	smsi_∑ge
 
 
-27 
+26 
 msi_èg
  
 	mèg
 ;
 
-28 
+27 
 ±hªad_muãx_t
  
 	mmuãx
 ;
 
-29 * 
+28 * 
 	m°¨t_addªss
+;
+
+29 * 
+	mphysiˇl_addªss
 ;
 
 30 
@@ -2413,7 +3145,13 @@ uöt64_t
 	msk
 ;
 
-49 
+49 
+uöt64_t
+ 
+	mphysiˇl_addªss
+;
+
+50 
 	muffd
 ;
 
@@ -2487,113 +3225,67 @@ uöt64_t
 	~"msi_°©emachöe.h
 "
 
-20 
-	g∑ge_size
- = 4096;
-
-30 
+29 
 	$Áu…_h™dÀr_thªad
 (*
 ¨g
 )
 
-32 
+31 
 uffd_msg
  
 msg
 ;
 
-33 
+32 
 u£rÁu…fd_thªad_¨gs
 * 
 h™dÀr_¨g
  = (
 
-34 
+33 
 u£rÁu…fd_thªad_¨gs
 *)
 ¨g
 ;
 
-35 
+34 
 uffd
 ;
 
-36 *
+35 *
 ∑ge
- = 
-NULL
+ = (*)
+h™dÀr_¨g
+->
+physiˇl_addªss
 ;
 
-37 
+36 
 uffdio_c›y
  uffdio_copy;
 
-38 
+37 
 ssize_t
  
 ƒód
 ;
 
-40 
+39 
 uffd
  = 
 h™dÀr_¨g
 ->uffd;
 
-42 i‡(
-∑ge
- =
-NULL
-) {
-
-43 
-∑ge
- = 
-	`mm≠
-(
-NULL
-, 
-∑ge_size
-, 
-PROT_READ
- | 
-PROT_WRITE
-,
-
-44 
-MAP_PRIVATE
- | 
-MAP_ANONYMOUS
-, -1, 0);
-
-45 i‡(
-∑ge
- =
-MAP_FAILED
-)
-
-46 
-	`îrExô
-("mmap");
-
-47 
-	`mem£t
-(
-∑ge
-, 0, 
-∑ge_size
-);
-
-51 
+43 
 pﬁlfd
 Öollfd;
 
-52 
+44 
 ƒódy
 ;
 
-53 
+45 
 pﬁlfd
 .
 fd
@@ -2601,7 +3293,7 @@ fd
 uffd
 ;
 
-54 
+46 
 pﬁlfd
 .
 evíts
@@ -2609,7 +3301,7 @@ evíts
 POLLIN
 ;
 
-55 
+47 
 ƒódy
  = 
 	`pﬁl
@@ -2617,15 +3309,15 @@ POLLIN
 pﬁlfd
 , 1, -1);
 
-56 i‡(
+48 i‡(
 ƒódy
  == -1)
 
-57 
+49 
 	`îrExô
 ("poll");
 
-59 
+51 
 ƒód
  = 
 	`ªad
@@ -2635,29 +3327,29 @@ uffd
 msg
 , (msg));
 
-60 i‡(
+52 i‡(
 ƒód
  == 0) {
 
-61 
+53 
 	`¥ötf
 ("EOF on userfaultfd!\n");
 
-62 
+54 
 	`exô
 (
 EXIT_FAILURE
 );
 
-65 i‡(
+57 i‡(
 ƒód
  == -1)
 
-66 
+58 
 	`îrExô
 ("read");
 
-68 i‡(
+60 i‡(
 msg
 .
 evít
@@ -2665,19 +3357,19 @@ evít
 UFFD_EVENT_PAGEFAULT
 ) {
 
-69 
+61 
 	`Ârötf
 (
 °dîr
 , "UnexpectedÉvent on userfaultfd\n");
 
-70 
+62 
 	`exô
 (
 EXIT_FAILURE
 );
 
-77 
+69 
 	`msi_ªque°_∑ge
 (
 h™dÀr_¨g
@@ -2685,7 +3377,9 @@ h™dÀr_¨g
 sk
 , 
 ∑ge
-, 
+,
+
+70 (*)
 msg
 .
 ¨g
@@ -2693,9 +3387,19 @@ msg
 ∑geÁu…
 .
 addªss
+,
+
+71 
+msg
+.
+¨g
+.
+∑geÁu…
+.
+Êags
 );
 
-79 
+73 
 uffdio_c›y
 .
 §c
@@ -2703,7 +3407,7 @@ uffdio_c›y
 ∑ge
 ;
 
-80 
+74 
 uffdio_c›y
 .
 d°
@@ -2717,31 +3421,35 @@ msg
 addªss
  &
 
-81 ~(
-∑ge_size
- - 1);
+75 ~(
+	`sysc⁄f
+(
+_SC_PAGE_SIZE
+)- 1);
 
-82 
+76 
 uffdio_c›y
 .
 Àn
  = 
-∑ge_size
-;
+	`sysc⁄f
+(
+_SC_PAGE_SIZE
+);
 
-83 
+77 
 uffdio_c›y
 .
 mode
  = 0;
 
-84 
+78 
 uffdio_c›y
 .
 c›y
  = 0;
 
-86 i‡(
+80 i‡(
 	`io˘l
 (
 uffd
@@ -2751,11 +3459,11 @@ UFFDIO_COPY
 uffdio_c›y
 ) == -1)
 
-87 
+81 
 	`îrExô
 ("ioctl-UFFDIO_COPY");
 
-88 
+82 
 	`¥ötf
 ("\n[%p]PAGEFAULT\n", (*)
 msg
@@ -2767,21 +3475,23 @@ msg
 addªss
 );
 
-90 
+84 
 	}
 }
 
-102 
+96 
 	$£tup_u£rÁu…fd_ªgi⁄
 (* 
 °¨t_ªgi⁄
+, ** 
+physiˇl_ªgi⁄
 , 
 uöt64_t
  
 Àngth
 ,
 
-103 
+97 
 ±hªad_t
 * 
 thr
@@ -2791,45 +3501,93 @@ h™dÀr
 sk
 )
 
-105 
+99 
 uffd
 ;
 
-106 
+100 
 uffdio_≠i
  uffdio_api;
 
-107 
+101 
 uffdio_ªgi°î
  uffdio_register;
 
-108 
+102 
 ±hªad_ªt
 ;
 
-109 
+103 
 u£rÁu…fd_thªad_¨gs
 * 
 ¨gs
  =
 
-110 (
+104 (
 u£rÁu…fd_thªad_¨gs
 *)
 	`mÆloc
 ((
 
-111 
+105 
 u£rÁu…fd_thªad_¨gs
 ));
 
-112 
+106 *
+physiˇl_ªgi⁄
+ = 
+	`mm≠
+(
+NULL
+, 
+Àngth
+, 
+PROT_READ
+ | 
+PROT_WRITE
+,
+
+107 
+MAP_PRIVATE
+ | 
+MAP_ANONYMOUS
+, -1, 0);
+
+108 i‡(*
+physiˇl_ªgi⁄
+ =
+MAP_FAILED
+)
+
+109 
+	`îrExô
+("mmap");
+
+110 
+	`mem£t
+(*
+physiˇl_ªgi⁄
+, 0, 
+Àngth
+);
+
+111 
 ¨gs
 ->
 sk
  = sk;
 
-114 
+112 
+¨gs
+->
+physiˇl_addªss
+ = (
+uöt64_t
+)*
+physiˇl_ªgi⁄
+;
+
+113 
 uffd
  = 
 	`sysˇŒ
@@ -2841,21 +3599,21 @@ O_CLOEXEC
 O_NONBLOCK
 );
 
-116 i‡(
+115 i‡(
 uffd
  == -1)
 
-117 
+116 
 	`îrExô
 ("userfaultfd");
 
-119 
+118 
 ¨gs
 ->
 uffd
  = uffd;
 
-121 
+120 
 uffdio_≠i
 .
 ≠i
@@ -2863,13 +3621,13 @@ uffdio_≠i
 UFFD_API
 ;
 
-122 
+121 
 uffdio_≠i
 .
 „©uªs
  = 0;
 
-123 i‡(
+122 i‡(
 	`io˘l
 (
 uffd
@@ -2879,11 +3637,11 @@ UFFDIO_API
 uffdio_≠i
 ) == -1)
 
-124 
+123 
 	`îrExô
 ("ioctl-UFFDIO_API");
 
-126 
+125 
 uffdio_ªgi°î
 .
 ønge
@@ -2893,7 +3651,7 @@ uffdio_ªgi°î
 °¨t_ªgi⁄
 ;
 
-127 
+126 
 uffdio_ªgi°î
 .
 ønge
@@ -2903,7 +3661,7 @@ uffdio_ªgi°î
 Àngth
 ;
 
-128 
+127 
 uffdio_ªgi°î
 .
 mode
@@ -2911,7 +3669,7 @@ mode
 UFFDIO_REGISTER_MODE_MISSING
 ;
 
-129 i‡(
+128 i‡(
 	`io˘l
 (
 uffd
@@ -2921,11 +3679,11 @@ UFFDIO_REGISTER
 uffdio_ªgi°î
 ) == -1)
 
-130 
+129 
 	`îrExô
 ("ioctl-UFFDIO_REGISTER");
 
-132 
+131 
 ±hªad_ªt
  = 
 	`±hªad_¸óã
@@ -2939,25 +3697,25 @@ h™dÀr
 ¨gs
 );
 
-133 i‡(
+132 i‡(
 ±hªad_ªt
  != 0) {
 
-134 
+133 
 î∫o
  = 
 ±hªad_ªt
 ;
 
-135 
+134 
 	`îrExô
 ("pthread_create");
 
-138  
+137  
 uffd
 ;
 
-139 
+138 
 	}
 }
 
@@ -2987,6 +3745,8 @@ __USERFAULT_HANDLER_H__
 £tup_u£rÁu…fd_ªgi⁄
 (* 
 °¨t_ªgi⁄
+, ** 
+physiˇl_ªgi⁄
 , 
 uöt64_t
  

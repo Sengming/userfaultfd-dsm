@@ -20,7 +20,6 @@ enum msi_tag
 	SHARED,
 	NUM_TAGS
 };
-char* msi_strings[NUM_TAGS] = {"INVALID", "MODIFIED", "SHARED"};
 
 struct msi_page
 {

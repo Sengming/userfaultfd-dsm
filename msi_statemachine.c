@@ -38,103 +38,41 @@ struct msi_page* find_msi_page(void* fault_addr)
 
 void msi_request_page(int sk, char* page, void* fault_addr, unsigned int rw)
 {
-	int write_ret, read_ret;
+	int write_ret;
 	struct msi_message msg;
-	struct msi_message msg_in;
+	pthread_mutex_lock(&bus_lock);
 	struct msi_page* page_to_transition = find_msi_page(fault_addr);
 	if (!page_to_transition){
 		errExit("Unable to find page\n");
 	}
-	//printf("msi tag: %u, %p\n", page_to_transition->tag,
-	//       page_to_transition->start_address);
 
 	//pthread_mutex_lock(&page_to_transition->mutex);
 
-	switch (page_to_transition->tag){
-		case SHARED:
-		//	/* Check if read or write, flag is 0 for read, 1 for
-		//	 * write*/
-		//	if (rw == 0) {
-		//		/* If page is already shared, reading does
-		//		 * nothing*/
-		//		goto out_good;
-		//	}
-		//	else if (rw == 1) {
-		//		/* If page is shared, writing makes us modified
-		//		 * and sends invalidate to others*/
-		//		page_to_transition->tag = MODIFIED;
-		//		printf("[%p]SHARED TO MODIFIED\n",
-		//		       page_to_transition->start_address);
-		//		msg.message_type = INVALIDATE;
-		//		/*Ignore payload, don't need*/
-		//		write_ret = write(sk, &msg, sizeof(msg));
-		//		if (write_ret <= 0) {
-		//			goto out_bad;
-		//		}
-		//	}
-		//	else {
-		//		goto out_bad;
-		//	}
-			break;
-
-		case MODIFIED:
-			/* If modified, local reads and writes don't do anything */
-			break;
-
-		case INVALID:
-			/* If we are invalid, we need to get data from other node */
-			/* Populate Message fields before sending */
-			msg.message_type = INVALID_STATE_READ;
-			msg.payload.request_page.address = (uint64_t)fault_addr;
-			msg.payload.request_page.size = sysconf(_SC_PAGE_SIZE);
-			write_ret = write(sk, &msg , sizeof(msg));
-			if (write_ret <= 0) {
-				goto out_bad;
-			}
-
-			pthread_mutex_lock(&bus_lock);
-			//printf("BEFORE PAGE READ\n");
-			/* Use condition variable to wait for bus thread to
-			 * reply with page data*/
-			memset(&global_data_buffer, 0, 4096);
-			waiting_for_page_reply = 1;
-			while(waiting_for_page_reply == 1)
-				pthread_cond_wait(&page_reply_cond, &bus_lock);
-
-			/* Wait for reply */
-			//printf("OK, PAGE REPLY IS IN!!!\n");
-			memcpy(page, &global_data_buffer, sysconf(_SC_PAGE_SIZE));
-			//if (*page != (int)0){
-			//printf("memcpy_at_invalid: %s\n", page);
-			//}
-			page_to_transition->tag = SHARED;
-//			if (rw == 1){
-//				page_to_transition->tag = MODIFIED;
-//				msg.message_type = INVALIDATE;
-//				/*Ignore payload, don't need*/
-//				write_ret = write(sk, &msg, sizeof(msg));
-//				if (write_ret <= 0) {
-//					goto out_bad;
-//				}
-//
-			//	/* Wait for reply, ack */
-			//	read_ret = read(sk, &msg_in, sizeof(msg_in));
-			//	if (read_ret <= 0) {
-			//		goto out_bad;
-			//	}
-			//	if (msg_in.message_type == INVALIDATE_ACK){
-			//		goto out_good;
-			//	}
-//			}
-			pthread_mutex_unlock(&bus_lock);
-			goto out_good;
-
-		default:
-
-			break;
+	/* If we are invalid, we need to get data from other node */
+	/* Populate Message fields before sending */
+	msg.message_type = INVALID_STATE_READ;
+	msg.payload.request_page.address = (uint64_t)fault_addr;
+	msg.payload.request_page.size = sysconf(_SC_PAGE_SIZE);
+	write_ret = write(sk, &msg , sizeof(msg));
+	if (write_ret <= 0) {
+		goto out_bad;
 	}
 
+	/* Use condition variable to wait for bus thread to
+	 * reply with page data*/
+	memset(&global_data_buffer, 0, 4096);
+	waiting_for_page_reply = 1;
+	while(waiting_for_page_reply == 1)
+		pthread_cond_wait(&page_reply_cond, &bus_lock);
+
+	/* Wait for reply */
+	memcpy(page, &global_data_buffer, sysconf(_SC_PAGE_SIZE));
+	page_to_transition->tag = SHARED;
+	goto out_good;
+
+
 out_good:
+	pthread_mutex_unlock(&bus_lock);
 	//pthread_mutex_unlock(&page_to_transition->mutex);
 	return;
 out_bad:
