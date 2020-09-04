@@ -46,7 +46,7 @@ void msi_request_page(int sk, char* page, void* fault_addr, unsigned int rw)
 		errExit("Unable to find page\n");
 	}
 
-	//pthread_mutex_lock(&page_to_transition->mutex);
+	pthread_mutex_lock(&page_to_transition->mutex);
 
 	/* If we are invalid, we need to get data from other node */
 	/* Populate Message fields before sending */
@@ -73,10 +73,10 @@ void msi_request_page(int sk, char* page, void* fault_addr, unsigned int rw)
 
 out_good:
 	pthread_mutex_unlock(&bus_lock);
-	//pthread_mutex_unlock(&page_to_transition->mutex);
+	pthread_mutex_unlock(&page_to_transition->mutex);
 	return;
 out_bad:
-	//pthread_mutex_unlock(&page_to_transition->mutex);
+	pthread_mutex_unlock(&page_to_transition->mutex);
 	errExit("request_page_failed");
 }
 
@@ -103,7 +103,7 @@ void msi_handle_page_request(int sk, struct msi_message* in_msg)
 		memcpy(msg_out.payload.page_data, page_to_transition->start_address,
 			sysconf(_SC_PAGE_SIZE));
 	}
-	//pthread_mutex_lock(&page_to_transition->mutex);
+	pthread_mutex_lock(&page_to_transition->mutex);
 	write_ret = write(sk, &msg_out, sizeof(msg_out));
 	if (write_ret <= 0) {
 		goto out_bad;
@@ -113,10 +113,10 @@ void msi_handle_page_request(int sk, struct msi_message* in_msg)
 	page_to_transition->tag = SHARED;
 	goto out_good;
 out_bad:
-	//pthread_mutex_unlock(&page_to_transition->mutex);
+	pthread_mutex_unlock(&page_to_transition->mutex);
 	errExit("handle_page_request_error");
 out_good:
-	//pthread_mutex_unlock(&page_to_transition->mutex);
+	pthread_mutex_unlock(&page_to_transition->mutex);
 	return;
 }
 
@@ -132,7 +132,7 @@ void msi_handle_page_invalidate (int sk, struct msi_message* in_msg)
 		errExit("Unable to find page\n");
 	}
 
-	//pthread_mutex_lock(&page_to_transition->mutex);
+	pthread_mutex_lock(&page_to_transition->mutex);
 	page_to_transition->tag = INVALID;
 	if (madvise(page_to_transition->start_address, sysconf(_SC_PAGE_SIZE), MADV_DONTNEED)) {
 		errExit("fail to madvise");
@@ -145,7 +145,7 @@ void msi_handle_page_invalidate (int sk, struct msi_message* in_msg)
 	if (write_ret <= 0) {
 		errExit("page_invalidate_failed");
 	}
-	//pthread_mutex_unlock(&page_to_transition->mutex);
+	pthread_mutex_unlock(&page_to_transition->mutex);
 }
 
 void msi_handle_page_reply(int sk, struct msi_message* in_msg)
