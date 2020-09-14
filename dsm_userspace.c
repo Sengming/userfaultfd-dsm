@@ -202,25 +202,18 @@ main(int argc, char *argv[])
 		mmap(shared_mapping.memory_address, shared_mapping.len,
 		     PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS |
 		     MAP_FIXED, -1, 0);
-
-		bus_thread_ret = pthread_create(&bus_thread, NULL,
-					     bus_thread_handler,
-					     (void *) &bus_args);
-		if (bus_thread_ret != 0) {
-			errno = bus_thread_ret;
-			errExit("pthread_create");
-		}
 	} else {
 	/* There is no server to connect to so we set up ourselves as the server*/
 		socket_fd = setup_server(atoi(argv[1]), &bus_args,
 					 &shared_mapping);
-		bus_thread_ret = pthread_create(&bus_thread, NULL,
+	}
+	
+	bus_thread_ret = pthread_create(&bus_thread, NULL,
 					     bus_thread_handler,
 					     (void *) &bus_args);
-		if (bus_thread_ret != 0) {
-			errno = bus_thread_ret;
-			errExit("pthread_create");
-		}
+	if (bus_thread_ret != 0) {
+		errno = bus_thread_ret;
+		errExit("pthread_create");
 	}
 
 	setup_userfaultfd_region(shared_mapping.memory_address,
